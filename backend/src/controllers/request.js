@@ -23,13 +23,11 @@ const http = (method, url, data) => {
     });
 };
 
-
+// receive client_id and client_secret
 const requestAccessToken = async (req, res) => {
-
 
     const client_id = req.body.client_id
     const client_secret = req.body.client_secret
-
 
     const bodyData = {
         client_id: client_id,
@@ -42,8 +40,12 @@ const requestAccessToken = async (req, res) => {
 
     const answer = await http('post', url, bodyData);
 
+    global.client_id.token = answer.data;
     res.json(answer.data)
 }
+
+
+
 
 
 module.exports = {

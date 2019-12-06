@@ -5,4 +5,6 @@ const controller = require('../../controllers/request')
 /* GET users listing. */
 router.post('/', controller.requestAccessToken);
 
+//router.post('/add', controller.addUser);
+
 module.exports = router;
