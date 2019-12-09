@@ -40,8 +40,8 @@ export default function Settings() {
               <GridContainer class="col align-self-center">
                 <GridItem >
                   <CustomInput
-                    labelText="grant_type"
-                    id="grant_type"
+                    labelText="tenant"
+                    id="tenant"
                     formControlProps={{
                       fullWidth: true
                     }}
@@ -52,32 +52,8 @@ export default function Settings() {
               <GridContainer class="col align-self-center">
                 <GridItem>
                   <CustomInput
-                    labelText="client_id"
-                    id="client_id"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-
-              <GridContainer class="col align-self-center">
-                <GridItem>
-                  <CustomInput
-                    labelText="client_secret"
-                    id="client_secret"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-
-              <GridContainer class="col align-self-center">
-                <GridItem >
-                  <CustomInput
-                    labelText="scope"
-                    id="scope"
+                    labelText="organization"
+                    id="organization"
                     formControlProps={{
                       fullWidth: true
                     }}
