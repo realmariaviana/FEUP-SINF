@@ -12,22 +12,20 @@ const getBodyData = (formObj) => {
     return bodyData;
 };
 
-const http = (method, url, data) => {
-    const bodyData = getBodyData(data);
-
+const http = (method, url, headers, data) => {
     return axios({
         baseURL: url,
         method: method,
-        data: bodyData,
-        headers: { ...bodyData.getHeaders() }
+        data: data,
+        headers: headers
     });
 };
 
 // receive client_id and client_secret
 const requestAccessToken = async (req, res) => {
-
-    const client_id = req.body.client_id
-    const client_secret = req.body.client_secret
+    const url = 'https://identity.primaverabss.com/connect/token'
+    const client_id = 'FEUP-SINF-Q'
+    const client_secret = 'd2b94144-8623-4c47-b34e-68912113dbc9'
 
     const bodyData = {
         client_id: client_id,
@@ -36,18 +34,46 @@ const requestAccessToken = async (req, res) => {
         scope: 'application',
     };
 
-    const url = 'https://identity.primaverabss.com/connect/token'
+    const header = getBodyData(bodyData)
+    try {
+        const answer = await axios({
+            baseURL: url,
+            method: 'post',
+            data: header,
+            headers: { ...header.getHeaders() }
+        });
+        global[client_id] = answer.data.access_token
 
-    const answer = await http('post', url, bodyData);
+        res.json(answer.data)
 
-    global.client_id.token = answer.data;
-    res.json(answer.data)
+    } catch (err) {
+        res.json(err)
+    }
+}
+
+const getOrders = async (req, res) => {
+
+    const tenant = req.body.tenant;
+
+
+    console.log(tenant)
+    console.log(global['FEUP-SINF-Q'])
+    const org = "226335";
+    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
+    const headers = {
+        Authorization: "Bearer " + global['FEUP-SINF-Q'],
+        "Content-Type": "application/json",
+    }
+
+    const pedido = await axios.get(url, {headers: headers})  
+    const orders = pedido.data.filter(order => /ECF.*/.test(order.naturalKey))
+    res.json(orders)
+
 }
 
 
 
-
-
 module.exports = {
-    requestAccessToken
+    requestAccessToken,
+    getOrders
 }

@@ -5,6 +5,6 @@ const controller = require('../../controllers/request')
 /* GET users listing. */
 router.post('/', controller.requestAccessToken);
 
-//router.post('/add', controller.addUser);
+router.get('/', controller.getOrders);
 
 module.exports = router;

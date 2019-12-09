@@ -7,10 +7,13 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 
+
 const usersRouter = require('../api/routes/users');
 
 module.exports = app => {
     // view engine setup
+
+  //  require('dotenv').config();
 
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'jade');
