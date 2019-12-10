@@ -7,4 +7,6 @@ router.post('/', controller.requestAccessToken);
 
 router.get('/', controller.getOrders);
 
+router.post('/sales', controller.createSalesOrder);
+
 module.exports = router;

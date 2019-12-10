@@ -2,6 +2,10 @@
 
 const axios = require('axios');
 const FormData = require('form-data');
+const moment = require('moment');
+const Company = require('../models/company')
+const Order = require('../models/order')
+const Log = require('../models/logs')
 
 
 const getBodyData = (formObj) => {
@@ -12,14 +16,31 @@ const getBodyData = (formObj) => {
     return bodyData;
 };
 
-const http = (method, url, headers, data) => {
-    return axios({
+const http = (method, url, data, header) => {
+
+    const defaultHeader = {
+        Authorization: "Bearer " + global['FEUP-SINF-Q'],
+        "Content-Type": "application/json",
+    }
+
+    const headers = header ? { ...defaultHeader, ...header } : defaultHeader;
+
+    if (data)
+        return axios({
+            baseURL: url,
+            method: method,
+            data: data,
+            headers: headers
+        });
+    else return axios({
         baseURL: url,
         method: method,
-        data: data,
         headers: headers
     });
+
 };
+
+
 
 // receive client_id and client_secret
 const requestAccessToken = async (req, res) => {
@@ -42,38 +63,78 @@ const requestAccessToken = async (req, res) => {
             data: header,
             headers: { ...header.getHeaders() }
         });
+
         global[client_id] = answer.data.access_token
 
-        res.json(answer.data)
-
     } catch (err) {
-        res.json(err)
+        console.log(err)
     }
 }
 
-const getOrders = async (req, res) => {
+const getOrders = (req, res) => {
 
     const tenant = req.body.tenant;
 
-
-    console.log(tenant)
-    console.log(global['FEUP-SINF-Q'])
-    const org = "226335";
     const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
-    const headers = {
-        Authorization: "Bearer " + global['FEUP-SINF-Q'],
-        "Content-Type": "application/json",
-    }
 
-    const pedido = await axios.get(url, {headers: headers})  
-    const orders = pedido.data.filter(order => /ECF.*/.test(order.naturalKey))
-    res.json(orders)
+    http('get', url)
+        .then(answer => {
+            const orders = answer.data.filter(order => /ECF.*/.test(order.naturalKey))
 
+            res.json(orders)
+        })
+        .catch(respo => {
+            const { response } = respo
+            if (response.status === 401) {
+                requestAccessToken()
+                    .then(() => getOrders(req, res))
+                    .catch(error => console.log(error))
+            }
+
+        })
 }
 
+const createSalesOrder = async (req, res) => {
+    try {
+        const tenant = req.body.tenant
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`
+
+        const headers = {
+            Authorization: "Bearer " + global['FEUP-SINF-Q'],
+            "Content-Type": "application/json",
+        }
+
+        const body = {
+            documentType: 'ECL',
+            serie: moment().format('YYYY'),
+            documentDate: moment().format(),
+            buyerCustomerParty: '0001',
+            discount: 0,
+            currency: 'EUR',
+            paymentMethod: 'NUM',
+            company: 'SINF-Q',
+            deliveryOnInvoice: false,
+            documentType: {
+
+            }
+        }
+
+        const ask = await axios.post(url, { headers: headers, data: body })
+
+        res.json(ask.data)
+    } catch (err) {
+        console.log(err)
+        if (err.status === 401) {
+            requestAccessToken();
+        } else {
+            res.json(err.data)
+        }
+    }
+}
 
 
 module.exports = {
     requestAccessToken,
-    getOrders
+    getOrders,
+    createSalesOrder
 }
