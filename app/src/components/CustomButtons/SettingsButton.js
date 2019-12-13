@@ -26,8 +26,11 @@ export default function SettingsButton(props) {
     justIcon,
     className,
     muiClasses,
+    tenant,
+    organization,
     ...rest
   } = props;
+
   const btnClasses = classNames({
     [classes.button]: true,
     [classes[size]]: size,
@@ -44,14 +47,24 @@ export default function SettingsButton(props) {
   function handleButton() {
       console.log("BUTTON CLICKED");
 
-      var myInit = { method: 'GET',
-                     headers: {tenant: "224819"},
+      console.log(tenant);
+      console.log(organization);
+
+      console.log("myInit");
+      var myInit = { method: 'POST',
+                     headers: { tenant: tenant,
+                                organization: organization
+                              },
                      mode: 'cors',
                      cache: 'default' };
                      
-      fetch('/api/companies', myInit)
+      console.log(myInit);
+                     
+                     
+      fetch('/api/companies/company', myInit)
       .then(response => response.json())
       .then(data=>{
+          console.log("Data received from /api/companies/company");
           console.log(data)
       });
   };

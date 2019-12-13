@@ -46,8 +46,6 @@ const http = (method, url, data, header) => {
 
 };
 
-
-
 // receive client_id and client_secret
 const requestAccessToken = async (req, res) => {
 
@@ -77,29 +75,6 @@ const requestAccessToken = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
-}
-
-const getCompanies = (req, res) => {
-
-    const tenant = req.headers.tenant;
-
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
-
-    http('get', url)
-        .then(answer => {
-            const companies = answer.data
-            console.log(companies)
-            res.send(companies)
-        })
-        .catch(respo => {
-            const { response } = respo
-            if (response.status === 401) {
-                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
-                    .then(() => getCompanies(req, res))
-                    .catch(error => console.log(error))
-            }
-
-        })
 }
 
 const getOrders = (req, res) => {
@@ -163,10 +138,8 @@ const createSalesOrder = async (req, res) => {
     }
 }
 
-
 module.exports = {
     requestAccessToken,
     getOrders,
-    getCompanies,
     createSalesOrder
 }

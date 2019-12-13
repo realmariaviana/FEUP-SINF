@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 // core components
@@ -26,6 +26,11 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function Settings() {
+  const [tenant, setTenant] = useState("");
+  const [organization, setOrganization] = useState("");
+
+  console.log(setOrganization);
+
   const classes = useStyles();
   return (
     <div>
@@ -35,40 +40,17 @@ export default function Settings() {
             <CardHeader color="info">
               <h4 className={classes.cardTitleWhite}>Edit Company</h4>
             </CardHeader>
-            <CardBody  >
+            <CardBody  id="inputs">
               
               <GridContainer class="col align-self-center">
                 <GridItem >
                   <CustomInput
-                    labelText="grant_type"
-                    id="grant_type"
+                    labelText="tenant"
+                    id="tenant"
                     formControlProps={{
                       fullWidth: true
                     }}
-                  />
-                </GridItem>
-              </GridContainer>
-
-              <GridContainer class="col align-self-center">
-                <GridItem>
-                  <CustomInput
-                    labelText="client_id"
-                    id="client_id"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-
-              <GridContainer class="col align-self-center">
-                <GridItem>
-                  <CustomInput
-                    labelText="client_secret"
-                    id="client_secret"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
+                    updateLocalState={(t) => setTenant(t)}
                   />
                 </GridItem>
               </GridContainer>
@@ -76,18 +58,19 @@ export default function Settings() {
               <GridContainer class="col align-self-center">
                 <GridItem >
                   <CustomInput
-                    labelText="scope"
-                    id="scope"
+                    labelText="organization"
+                    id="organization"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    updateLocalState={(o) => setOrganization(o)}
                   />
                 </GridItem>
               </GridContainer>
 
             </CardBody>
             <CardFooter >
-              <SettingsButton  color="info">Save</SettingsButton>
+              <SettingsButton tenant={tenant} organization={organization} color="info">Save</SettingsButton>
             </CardFooter>
           </Card>
         </GridItem>
