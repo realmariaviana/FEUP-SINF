@@ -25,6 +25,12 @@ const http = (method, url, data, header) => {
 
     const headers = header ? { ...defaultHeader, ...header } : defaultHeader;
 
+    console.log("Sending request to: ");
+    console.log(url);
+    console.log(method);
+    console.log(data);
+    console.log(headers);
+    
     if (data)
         return axios({
             baseURL: url,
@@ -44,6 +50,7 @@ const http = (method, url, data, header) => {
 
 // receive client_id and client_secret
 const requestAccessToken = async (req, res) => {
+
     const url = 'https://identity.primaverabss.com/connect/token'
     const client_id = 'FEUP-SINF-Q'
     const client_secret = 'd2b94144-8623-4c47-b34e-68912113dbc9'
@@ -56,6 +63,7 @@ const requestAccessToken = async (req, res) => {
     };
 
     const header = getBodyData(bodyData)
+    
     try {
         const answer = await axios({
             baseURL: url,
@@ -69,6 +77,29 @@ const requestAccessToken = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
+}
+
+const getCompanies = (req, res) => {
+
+    const tenant = req.headers.tenant;
+
+    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
+
+    http('get', url)
+        .then(answer => {
+            const companies = answer.data
+            console.log(companies)
+            res.send(companies)
+        })
+        .catch(respo => {
+            const { response } = respo
+            if (response.status === 401) {
+                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                    .then(() => getCompanies(req, res))
+                    .catch(error => console.log(error))
+            }
+
+        })
 }
 
 const getOrders = (req, res) => {
@@ -136,5 +167,6 @@ const createSalesOrder = async (req, res) => {
 module.exports = {
     requestAccessToken,
     getOrders,
+    getCompanies,
     createSalesOrder
 }

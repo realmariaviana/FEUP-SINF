@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
-import Button from "components/CustomButtons/Button.js";
+import SettingsButton from "components/CustomButtons/SettingsButton.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
@@ -85,7 +85,7 @@ export default function Settings() {
 
             </CardBody>
             <CardFooter >
-              <Button  color="info">Save</Button>
+              <SettingsButton  color="info"></SettingsButton>
             </CardFooter>
           </Card>
         </GridItem>
