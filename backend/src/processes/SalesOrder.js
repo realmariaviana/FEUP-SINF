@@ -9,7 +9,6 @@ const create = body => {
     // Product Order
     const { documentLines, company, buyerCustomerParty, id } = body
 
-
     const sellerDocument = {
         documentType: 'ECL',
         serie: moment().format('YYYY'),

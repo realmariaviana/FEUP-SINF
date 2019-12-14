@@ -10,10 +10,7 @@ const MasterDataProcessesSchema = new Schema({
     orderId1: {type: String, required: true},
     orderId2: {type: String, required: true}
 
-
 })
-
-
 
 const MasterDataProcesses = mongoose.model('data_processes', MasterDataProcessesSchema);
 
