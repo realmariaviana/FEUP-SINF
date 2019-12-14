@@ -5,18 +5,16 @@ const type = require('./order')
 
 const { Schema } = mongoose;
 
-const masterDataCompanies = new Schema({
+const MasterDataProcessesSchema = new Schema({
 
-    name: {type: String, required: true},
-    supplierTenant: {type: String, required: true},
-    supplierId: {type: String, required: true},
-    customerTenant: {type: String, required: true},
-    customerId: {type: String, required: true}
+    orderId1: {type: String, required: true},
+    orderId2: {type: String, required: true}
+
 
 })
 
 
 
-const MasterDataCompanies = mongoose.model('data_companies', masterDataCompanies);
+const MasterDataProcesses = mongoose.model('data_processes', MasterDataProcessesSchema);
 
-module.exports = MasterDataCompanies
+module.exports = MasterDataProcesses

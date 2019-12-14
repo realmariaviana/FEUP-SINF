@@ -3,7 +3,7 @@
 const axios = require('axios');
 const FormData = require('form-data');
 
-const MasterDataCompanies = require('../models/masterdata')
+const MasterDataProcesses = require('../models/masterdata')
 const Order = require('../models/order')
 const SO = require('../processes/SalesOrder')
 
@@ -30,7 +30,7 @@ const http = (method, url, data, header) => {
     console.log(method);
     console.log(data);
     console.log(headers);
-    
+
     if (data)
         return axios({
             baseURL: url,
@@ -61,7 +61,7 @@ const requestAccessToken = async () => {
     };
 
     const header = getBodyData(bodyData)
-    
+
     try {
         const answer = await axios({
             baseURL: url,
@@ -118,7 +118,40 @@ const getOrders = async (req, res) => {
 
                             })
 
-                            http('post', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/sales/orders`, k).then(ans => res.json(ans)).catch(err => res.json(err))
+                            http('post', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/sales/orders`, k)
+                                .then(ans => {
+                                    new Order({
+                                        orderID: order.id,
+                                        processed: true,
+                                        typeOrder: 'PO'
+                                    })
+                                        .save()
+                                        .then(console.log('inserted PO with ' + order.id))
+                                        .catch(error => console.log(error))
+
+                                    new Order({
+                                        orderID: ans.data,
+                                        processed: true,
+                                        typeOrder: 'SO'
+                                    })
+                                        .save()
+                                        .then(console.log('inserted SO with ' + ans.data))
+                                        .catch(error => console.log(error))
+
+
+                                    new MasterDataProcesses({
+                                        orderId1: order.id,
+                                        orderId2: ans.data
+                                    })
+                                        .save()
+                                        .then(() => {
+                                            console.log('inserted processes: ' + order.id + " and " + ans.data)
+                                            res.json({ PO: order.id, SO: ans.data })
+                                        })
+                                        .catch(error => console.log(error))
+
+                                })
+                                .catch(err => res.json(err))
 
                         }).catch(error => console.log(error))
 

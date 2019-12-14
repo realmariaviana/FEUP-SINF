@@ -9,7 +9,7 @@ const orderSchema = new Schema({
     orderID: {type: String, required:true},
     processed: {type: Boolean, default: false},
     typeOrder: {type: String, required: true},
-    compId: {type: String, required: true}
+    responseDoc: {type: String}
 }, 
 {
     timestamps: true,
