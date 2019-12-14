@@ -25,6 +25,12 @@ const http = (method, url, data, header) => {
 
     const headers = header ? { ...defaultHeader, ...header } : defaultHeader;
 
+    console.log("Sending request to: ");
+    console.log(url);
+    console.log(method);
+    console.log(data);
+    console.log(headers);
+    
     if (data)
         return axios({
             baseURL: url,
@@ -55,6 +61,7 @@ const requestAccessToken = async () => {
     };
 
     const header = getBodyData(bodyData)
+    
     try {
         const answer = await axios({
             baseURL: url,

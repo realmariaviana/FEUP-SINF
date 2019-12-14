@@ -6,8 +6,7 @@ const logger = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-
-
+const companiesRouter = require('../api/routes/companies');
 const usersRouter = require('../api/routes/users');
 
 module.exports = app => {
@@ -25,6 +24,7 @@ module.exports = app => {
     app.use(cors());
 
     app.use('/api/users', usersRouter);
+    app.use('/api/companies', companiesRouter);
 
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
