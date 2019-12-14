@@ -25,11 +25,11 @@ const http = (method, url, data, header) => {
 
     const headers = header ? { ...defaultHeader, ...header } : defaultHeader;
 
-    console.log("Sending request to: ");
-    console.log(url);
-    console.log(method);
-    console.log(data);
-    console.log(headers);
+    // console.log("Sending request to: ");
+    // console.log(url);
+    // console.log(method);
+    // console.log(data);
+    // console.log(headers);
 
     if (data)
         return axios({
@@ -77,7 +77,61 @@ const requestAccessToken = async () => {
     }
 }
 
-const getOrders = async (req, res) => {
+
+
+
+const getDeliveryOrder = (req, res) => {
+
+    const tenant = req.body.tenant;
+
+    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/shipping/deliveries`
+
+
+    http('get', url)
+        .then(deliveries => {
+
+            const delivery = deliveries.data[0].documentLines[0].sourceDocId
+
+            MasterDataProcesses.findOne({ orderId2: delivery })
+                .then(process => {
+
+                    Order.findOne({ orderID: process.orderId1 })
+                        .then(order => {
+                            console.log(`https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}/`)
+                            console.log([{
+                                sourceDocKey: order.doc, "SourceDocLineNumber": 1,
+                                "quantity": 1
+                            }])
+                            http('post', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}`, [{
+                                sourceDocKey: order.doc, "SourceDocLineNumber": 1,
+                                "quantity": 1
+                            }])
+                                .then(ans => console.log(ans.data))
+                                .catch(error => console.log('oi'))
+
+                        })
+                        .catch(error => console.log(error))
+
+                })
+                .catch(error => console.log(error))
+
+        })
+        .catch(respo => {
+            const { response } = respo
+            if (response.status === 401) {
+                requestAccessToken()
+                    .then(() => getDeliveryOrder(req, res))
+                    .catch(error => console.log(error))
+            } else {
+                console.log(response)
+            }
+        })
+
+}
+
+
+
+const getOrders = (req, res) => {
 
     const tenant = req.body.tenant;
     const tenant2 = req.body.other;
@@ -121,6 +175,9 @@ const getOrders = async (req, res) => {
                             http('post', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/sales/orders`, k)
                                 .then(ans => {
                                     new Order({
+                                        doc: order.naturalKey,
+                                        tenant: tenant,
+                                        companyKey: order.company,
                                         orderID: order.id,
                                         processed: true,
                                         typeOrder: 'PO'
@@ -130,6 +187,8 @@ const getOrders = async (req, res) => {
                                         .catch(error => console.log(error))
 
                                     new Order({
+                                        tenant: tenant2,
+                                        companyKey: k.company,
                                         orderID: ans.data,
                                         processed: true,
                                         typeOrder: 'SO'
@@ -176,5 +235,6 @@ const getOrders = async (req, res) => {
 
 module.exports = {
     requestAccessToken,
-    getOrders
+    getOrders,
+    getDeliveryOrder
 }
