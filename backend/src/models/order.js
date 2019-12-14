@@ -7,7 +7,8 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
 
     orderID: {type: String, required:true},
-    procesed: {type: Boolean, default: false},
+    processed: {type: Boolean, default: false},
+    typeOrder: {type: String, required: true},
     compId: {type: String, required: true}
 }, 
 {

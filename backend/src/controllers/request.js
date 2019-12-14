@@ -2,10 +2,10 @@
 
 const axios = require('axios');
 const FormData = require('form-data');
-const moment = require('moment');
-const Company = require('../models/company')
+
+const MasterDataCompanies = require('../models/masterdata')
 const Order = require('../models/order')
-const Log = require('../models/logs')
+const SO = require('../processes/SalesOrder')
 
 
 const getBodyData = (formObj) => {
@@ -41,9 +41,8 @@ const http = (method, url, data, header) => {
 };
 
 
-
 // receive client_id and client_secret
-const requestAccessToken = async (req, res) => {
+const requestAccessToken = async () => {
     const url = 'https://identity.primaverabss.com/connect/token'
     const client_id = 'FEUP-SINF-Q'
     const client_secret = 'd2b94144-8623-4c47-b34e-68912113dbc9'
@@ -71,17 +70,55 @@ const requestAccessToken = async (req, res) => {
     }
 }
 
-const getOrders = (req, res) => {
+const getOrders = async (req, res) => {
 
     const tenant = req.body.tenant;
+    const tenant2 = req.body.other;
 
     const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
 
     http('get', url)
         .then(answer => {
-            const orders = answer.data.filter(order => /ECF.*/.test(order.naturalKey))
+            const orders = answer.data.filter(order => {
+                return /ECF.*/.test(order.naturalKey) && !order.isDeleted
+            })
 
-            res.json(orders)
+            const order = orders[0];
+            http('get', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/businesscore/parties`)
+                .then(customers => {
+
+                    const customer = customers.data.filter(elem => {
+                        return order.companyDescription === elem.name
+                    })
+
+                    http('get', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/corepatterns/companies`)
+                        .then(ans => {
+
+                            const comp = ans.data.filter(company => {
+
+                                if (company.isActive)
+                                    return company.name.toLowerCase() === order.sellerSupplierPartyName.toLowerCase()
+                                else return false
+                            })
+
+                            let goods = [];
+                            order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem }));
+
+                            const k = SO.create({
+                                documentLines: goods,
+                                buyerCustomerParty: customer[0].partyKey,
+                                company: comp[0].companyKey
+
+                            })
+
+                            http('post', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/sales/orders`, k).then(ans => res.json(ans)).catch(err => res.json(err))
+
+                        }).catch(error => console.log(error))
+
+                })
+                .catch(erro2 => console.log(erro2))
+
+
         })
         .catch(respo => {
             const { response } = respo
@@ -89,52 +126,15 @@ const getOrders = (req, res) => {
                 requestAccessToken()
                     .then(() => getOrders(req, res))
                     .catch(error => console.log(error))
+            } else {
+                console.log(response)
             }
 
         })
 }
 
-const createSalesOrder = async (req, res) => {
-    try {
-        const tenant = req.body.tenant
-        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`
-
-        const headers = {
-            Authorization: "Bearer " + global['FEUP-SINF-Q'],
-            "Content-Type": "application/json",
-        }
-
-        const body = {
-            documentType: 'ECL',
-            serie: moment().format('YYYY'),
-            documentDate: moment().format(),
-            buyerCustomerParty: '0001',
-            discount: 0,
-            currency: 'EUR',
-            paymentMethod: 'NUM',
-            company: 'SINF-Q',
-            deliveryOnInvoice: false,
-            documentType: {
-
-            }
-        }
-
-        const ask = await axios.post(url, { headers: headers, data: body })
-
-        res.json(ask.data)
-    } catch (err) {
-        console.log(err)
-        if (err.status === 401) {
-            requestAccessToken();
-        } else {
-            res.json(err.data)
-        }
-    }
-}
-
 
 module.exports = {
     requestAccessToken,
-    getOrders,
-    createSalesOrder
+    getOrders
 }

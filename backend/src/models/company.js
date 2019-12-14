@@ -7,7 +7,8 @@ const { Schema } = mongoose;
 const companySchema = new Schema({
     tenant: {type: String, required:true},
     organization: {type: String, required: true},
-    compId: {type: String, required: true}
+    compId: {type: String, required: true},
+    compName: {type: String, required: true}
 }, 
 {
     timestamps: true,

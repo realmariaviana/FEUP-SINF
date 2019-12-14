@@ -6,12 +6,15 @@ const { Schema } = mongoose;
 
 
 const logSchema = new Schema( {
-    date: {type: Date, required: true}, 
     message : {type: String, required: true},
-    compID: {type: String, required: true}
+    compId: {type: String, required: true}
 }, 
 {
     timestamps: true,
 })
 
+
+const Log = mongoose.model('log', logSchema)
+
+module.exports = Log
 
