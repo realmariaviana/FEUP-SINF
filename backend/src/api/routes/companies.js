@@ -8,6 +8,6 @@ router.get('/', controller.getCompanies);
 /**
  * Create new Company
  */
-router.post('/company', controller.createCompany);
+router.post('/company', controller.saveTenantOrganization);
 
 module.exports = router;

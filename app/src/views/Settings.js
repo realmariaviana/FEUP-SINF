@@ -27,9 +27,9 @@ const useStyles = makeStyles(styles);
 
 export default function Settings() {
   const [tenant, setTenant] = useState("");
+  const [tenant2, setTenant2] = useState("");
   const [organization, setOrganization] = useState("");
-
-  console.log(setOrganization);
+  const [organization2, setOrganization2] = useState("");
 
   const classes = useStyles();
   return (
@@ -42,8 +42,9 @@ export default function Settings() {
             </CardHeader>
             <CardBody  id="inputs">
               
-              <GridContainer class="col align-self-center">
-                <GridItem >
+              <GridContainer class="row">
+
+                <GridItem xs={6} md={6} >
                   <CustomInput
                     labelText="tenant"
                     id="tenant"
@@ -53,10 +54,23 @@ export default function Settings() {
                     updateLocalState={(t) => setTenant(t)}
                   />
                 </GridItem>
+
+                <GridItem xs={6} md={6}>
+                  <CustomInput
+                    labelText="tenant2"
+                    id="tenant2"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                    updateLocalState={(t2) => setTenant2(t2)}
+                  />
+                </GridItem>
+
               </GridContainer>
 
               <GridContainer class="col align-self-center">
-                <GridItem >
+
+              <GridItem xs={6} md={6}>
                   <CustomInput
                     labelText="organization"
                     id="organization"
@@ -66,11 +80,23 @@ export default function Settings() {
                     updateLocalState={(o) => setOrganization(o)}
                   />
                 </GridItem>
+
+                <GridItem xs={6} md={6}>
+                  <CustomInput
+                    labelText="organization2"
+                    id="organization2"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                    updateLocalState={(o2) => setOrganization2(o2)}
+                  />
+                </GridItem>
+                
               </GridContainer>
 
             </CardBody>
             <CardFooter >
-              <SettingsButton tenant={tenant} organization={organization} color="info">Save</SettingsButton>
+              <SettingsButton tenant={tenant} organization={organization} tenant2={tenant2} organization2={organization2} color="info">Save</SettingsButton>
             </CardFooter>
           </Card>
         </GridItem>

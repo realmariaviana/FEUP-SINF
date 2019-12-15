@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 
 const companiesRouter = require('../api/routes/companies');
 const usersRouter = require('../api/routes/users');
+const logsRouter = require('../api/routes/logsRouter')
 
 module.exports = app => {
     // view engine setup
@@ -25,6 +26,7 @@ module.exports = app => {
 
     app.use('/api/users', usersRouter);
     app.use('/api/companies', companiesRouter);
+    app.use('/api/logs', logsRouter)
 
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
