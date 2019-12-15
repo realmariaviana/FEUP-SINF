@@ -47,7 +47,7 @@ export default function MasterData() {
         <Card>
           <CardHeader color="info">
             <h4 className={classes.cardCategoryWhite}>
-             Product Mapping
+             Purchase Orders
             </h4>
           </CardHeader>
           <CardBody>

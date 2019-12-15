@@ -77,9 +77,6 @@ const requestAccessToken = async () => {
     }
 }
 
-
-
-
 const getDeliveryOrder = (req, res) => {
 
     const tenant = req.body.tenant;
@@ -234,6 +231,7 @@ const getOrders = (req, res) => {
 
 
 module.exports = {
+    http,
     requestAccessToken,
     getOrders,
     getDeliveryOrder

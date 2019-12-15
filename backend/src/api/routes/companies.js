@@ -5,6 +5,9 @@ const controller = require('../../controllers/company')
 /* GET companies listing. */
 router.get('/', controller.getCompanies);
 
+/* GET Purchase Orders listing. */
+router.get('/purchase_orders', controller.getPurchaseOrders);
+
 /**
  * Create new Company
  */

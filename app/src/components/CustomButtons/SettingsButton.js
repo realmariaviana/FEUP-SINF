@@ -54,12 +54,14 @@ export default function SettingsButton(props) {
 
       console.log(tenant2);
       console.log(organization2);
-      
+
       var myInit = { method: 'POST',
                      headers: { tenant: tenant,
                                 organization: organization,
                                 tenant2: tenant2,
-                                organization2: organization2
+                                organization2: organization2,
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
                               },
                      mode: 'cors',
                      cache: 'default' };

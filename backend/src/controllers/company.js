@@ -1,8 +1,8 @@
 'use strict'
 
 const axios = require('axios');
-const controller = require('./request');
 const Company = require('../models/company');
+const {http, requestAccessToken} = require('./request');
 
 const getCompanies = (req, res) => {
 
@@ -41,13 +41,39 @@ const saveTenantOrganization = (req, res) => {
     console.log("Received and saved in global <tenant1> and <tenant2>: " + req.headers.tenant + ", " + req.headers.tenant2);
     console.log("Received and saved in global <organization1> and <organization2>: " + req.headers.organization + ", " + req.headers.organization2);
 
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
+    res.send({ message: "Saved tenants and organizations successfully"});
 
-    res.send("Saved tenants and organizations successfully");
+}
 
+const getPurchaseOrders = (req, res) => {
+
+    console.log("Company_Controller: Getting purchase orders");
+    
+    console.log(global["tenant1"]);
+    console.log(global["organization1"]);
+
+    const url = `https://my.jasminsoftware.com/api/${global["tenant1"]}/${global["organization1"]}/purchases/orders?`
+
+    http('get', url)
+        .then(answer => {
+            const POs = answer.data
+            console.log("Received purchase orders for organization " + global["organization1"] + ':');
+            console.log(POs)
+            res.send(POs)
+        })
+        .catch(respo => {
+            const { response } = respo
+            if (response.status === 401) {
+                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                    .then(() => getPurchaseOrders(req, res))
+                    .catch(error => console.log(error))
+            }
+        })
+    
 }
 
 module.exports = {
     getCompanies,
+    getPurchaseOrders,
     saveTenantOrganization
 }

@@ -15,6 +15,16 @@ const useStyles = makeStyles(styles);
 export default function CustomTable(props) {
   const classes = useStyles();
   const { tableHead, tableData, tableHeaderColor } = props;
+
+  //  Fetch POs
+  /*   
+  fetch('/api/companies/company', myInit)
+  .then(response => response.json())
+  .then(data=>{
+      console.log("Data received from /api/companies/company");
+      console.log(data)
+  })*/
+
   return (
     <div className={classes.tableResponsive}>
       <Table className={classes.table}>
