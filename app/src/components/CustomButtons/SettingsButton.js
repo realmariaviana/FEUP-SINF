@@ -28,6 +28,8 @@ export default function SettingsButton(props) {
     muiClasses,
     tenant,
     organization,
+    tenant2,
+    organization2,
     ...rest
   } = props;
 
@@ -50,23 +52,24 @@ export default function SettingsButton(props) {
       console.log(tenant);
       console.log(organization);
 
-      console.log("myInit");
+      console.log(tenant2);
+      console.log(organization2);
+      
       var myInit = { method: 'POST',
                      headers: { tenant: tenant,
-                                organization: organization
+                                organization: organization,
+                                tenant2: tenant2,
+                                organization2: organization2
                               },
                      mode: 'cors',
                      cache: 'default' };
-                     
-      console.log(myInit);
-                     
                      
       fetch('/api/companies/company', myInit)
       .then(response => response.json())
       .then(data=>{
           console.log("Data received from /api/companies/company");
           console.log(data)
-      });
+      })
   };
 
   return (

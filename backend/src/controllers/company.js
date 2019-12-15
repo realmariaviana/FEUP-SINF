@@ -23,34 +23,31 @@ const getCompanies = (req, res) => {
                     .then(() => getCompanies(req, res))
                     .catch(error => console.log(error))
             }
-
         })
 }
 
-const createCompany = (req, res) => {
-    
-    console.log("Creating company:");
-    console.log(req.headers.tenant);
-    console.log(req.headers.organization);
+const saveTenantOrganization = (req, res) => {
 
     //  TODO: check if its only digits
+    /* if(false) {   // if not valid
+        res.status(500).send({ error: 'not valid tenant or organization' })
+    } */
     
-    const company = new Company({ tenant: req.tenant, organization: req.organization });
-    company.save()
-    .then(item => {
-        console.log("moo model company");
-      res.send("item saved to database");
-    })
-    .catch(err => {
-        console.log("eated model company");
-      res.status(400).send("unable to save to database");
-    });
-    /* Company.find(query, (err, result) => {
-        console.log(err);
-    }); */
+    global["tenant1"] = req.headers.tenant;
+    global["tenant2"] = req.headers.tenant2;
+    global["organization1"] = req.headers.organization;
+    global["organization2"] = req.headers.organization2;
+
+    console.log("Received and saved in global <tenant1> and <tenant2>: " + req.headers.tenant + ", " + req.headers.tenant2);
+    console.log("Received and saved in global <organization1> and <organization2>: " + req.headers.organization + ", " + req.headers.organization2);
+
+    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
+
+    res.send("Saved tenants and organizations successfully");
+
 }
 
 module.exports = {
     getCompanies,
-    createCompany
+    saveTenantOrganization
 }
