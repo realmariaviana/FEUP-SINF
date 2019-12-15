@@ -79,48 +79,51 @@ const requestAccessToken = async () => {
 
 
 
+const createReceiptInvoice = (req, res) => {
 
-const getDeliveryOrder = (req, res) => {
 
-    const tenant = req.body.tenant;
 
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/shipping/deliveries`
+}
 
+
+
+const createSalesInvoice = (req, res) => {
+
+    const tenant = req.body.tenant
+    const doc = req.body.doc
+
+    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/billing/processOrders/1/1000`
 
     http('get', url)
-        .then(deliveries => {
+        .then(sales => {
+            const sale = sales.data.filter(x => x.orderKey === doc)[0]
 
-            const delivery = deliveries.data[0].documentLines[0].sourceDocId
+            const body = [
+                {
+                    "deliveryKey": sale.deliveryKey,
+                    "deliveryLineNumber": sale.deliveryLineNumber,
+                    "orderKey": sale.orderKey,
+                    "orderLineNumber": sale.orderLineNumber,
+                    "quantity": sale.openQuantity
+                }
+            ]
 
-            MasterDataProcesses.findOne({ orderId2: delivery })
-                .then(process => {
+            http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/shipping/deliveries`)
+                .then(answer => {
 
-                    Order.findOne({ orderID: process.orderId1 })
-                        .then(order => {
-                            console.log(`https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}/`)
-                            console.log([{
-                                sourceDocKey: order.doc, "SourceDocLineNumber": 1,
-                                "quantity": 1
-                            }])
-                            http('post', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}`, [{
-                                sourceDocKey: order.doc, "SourceDocLineNumber": 1,
-                                "quantity": 1
-                            }])
-                                .then(ans => console.log(ans.data))
-                                .catch(error => console.log('oi'))
+                    const deliveryOrder = answer.data.filter(x => x.documentLines[0].sourceDoc === doc)
 
-                        })
-                        .catch(error => console.log(error))
-
+                    http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}billing/processOrders/${deliveryOrder[0].company}`, body)
+                        .then(an => res.json(an.data))
+                        .catch(err => console.log('oi'))
                 })
-                .catch(error => console.log(error))
+                .catch(err => console.log(err))
 
-        })
-        .catch(respo => {
+        }).catch(respo => {
             const { response } = respo
             if (response.status === 401) {
                 requestAccessToken()
-                    .then(() => getDeliveryOrder(req, res))
+                    .then(() => createSalesInvoice(req, res))
                     .catch(error => console.log(error))
             } else {
                 console.log(response)
@@ -130,111 +133,215 @@ const getDeliveryOrder = (req, res) => {
 }
 
 
+const getAllDOs = async (tenant, filter) => {
+    try {
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/shipping/deliveries`
 
-const getOrders = (req, res) => {
+        const deliveries = await http('get', url)
 
-    const tenant = req.body.tenant;
-    const tenant2 = req.body.other;
+        if (filter) {
 
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
+            return deliveries.data.filter(x => {
+                return filter.contains(x.naturalKey)
+            })
+        }
+        else
+            return deliveries.data
 
-    http('get', url)
-        .then(answer => {
-            const orders = answer.data.filter(order => {
+    } catch (e) {
+        const { response } = e
+        if (response.status === 401) {
+            requestAccessToken()
+                .then(() => getAllDOs(tenant, filter))
+                .catch(error => console.log(error))
+        } else {
+            console.log(response)
+        }
+    }
+}
+
+const createGR = async (delivery) => {
+    try {
+        // const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
+
+        const process = await MasterDataProcesses.findOne({ orderId2: delivery.documentLines[0].sourceDocId })
+
+        const order = await Order.findOne({ orderID: process.orderId1 })
+
+        const ans = await http('post', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}`, [{
+            sourceDocKey: order.doc, "SourceDocLineNumber": 1,
+            "quantity": 1
+        }])
+
+        Order.update({ _id: order._id }, { $set: { "processed": true } })
+
+        await new Order({
+            tenant: order.tenant,
+            companyKey: order.companyKey,
+            orderID: ans.data,
+            processed: false,
+            typeOrder: 'GR'
+        }).save()
+
+
+        await new Order({
+            doc: delivery.documentLines[0].sourceDoc,
+            tenant: tenant,
+            companyKey: delivery.company,
+            orderID: delivery.id,
+            processed: false,
+            typeOrder: 'DO'
+        }).save()
+
+        await new MasterDataProcesses({
+            orderId1: delivery.id,
+            orderId2: ans.data
+        }).save()
+
+    } catch (e) {
+
+        console.log(e)
+
+    }
+
+}
+
+const processDOs = async (req, res) => {
+    try {
+        const names = req.body.name
+        const tenant = req.body.tenant
+        let deliveries;
+
+        if (names)
+            deliveries = getAllDOs(tenant, names)
+        else
+            deliveries = getAllDOs(tenant)
+
+       await deliveries.forEach(delivery => createGR(delivery))
+
+        res.json('done')
+        // Promise.all(prom)
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+const createSalesOrder = async (order, tenant1) => {
+
+    try {
+
+        const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
+
+        const customers = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/businesscore/parties`)
+
+        const customer = customers.data.filter(elem => {
+            return order.companyDescription === elem.name
+        })
+
+        const ans = http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`)
+
+        const comp = ans.data.filter(company => {
+
+            if (company.isActive)
+                return company.name.toLowerCase() === order.sellerSupplierPartyName.toLowerCase()
+            else return false
+        })
+
+        let goods = [];
+        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem }));
+
+        const k = SO.create({
+            documentLines: goods,
+            buyerCustomerParty: customer[0].partyKey,
+            company: comp[0].companyKey
+
+        })
+
+        const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
+
+        await new Order({
+            doc: order.naturalKey,
+            tenant: tenant,
+            companyKey: order.company,
+            orderID: order.id,
+            typeOrder: 'PO'
+        }).save()
+
+        console.log('inserted PO with ' + order.id)
+
+        await new Order({
+            tenant: tenant2,
+            companyKey: k.company,
+            orderID: ans2.data,
+            typeOrder: 'SO'
+        }).save()
+
+        console.log('inserted SO with ' + ans.data)
+
+        await new MasterDataProcesses({
+            orderId1: order.id,
+            orderId2: ans2.data
+        }).save()
+        console.log('inserted processes: ' + order.id + " and " + ans2.data)
+
+    } catch (e) {
+        console.log(e)
+    }
+
+}
+
+
+const processPos = async (req, res) => {
+    const names = req.body.names
+    const tenant = req.body.tenant
+
+    let orders;
+
+    if (names)
+        orders = getAllPOs(tenant, names)
+    else
+        orders = getAllPOs(tenant)
+
+
+   await orders.forEach(order => createSalesOrder(order, tenant))
+
+    res.json('done')
+}
+
+const getAllPOs = async (tenant, filter) => {
+
+    try {
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
+
+        const tmpOrders = await http('get', url);
+
+        if (filter) {
+
+            return tmpOrders.data.filter(order => {
+                return filter.contains(order.naturalKey)
+            })
+        }
+        else {
+            return tmpOrders.data.filter(order => {
                 return /ECF.*/.test(order.naturalKey) && !order.isDeleted
             })
+        }
 
-            const order = orders[0];
-            http('get', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/businesscore/parties`)
-                .then(customers => {
+    } catch (e) {
+        const { response } = e
+        if (response.status === 401) {
+            requestAccessToken()
+                .then(() => getAllPOs(tenant, filter))
+                .catch(error => console.log(error))
+        } else {
+            console.log(response)
+        }
+    }
 
-                    const customer = customers.data.filter(elem => {
-                        return order.companyDescription === elem.name
-                    })
-
-                    http('get', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/corepatterns/companies`)
-                        .then(ans => {
-
-                            const comp = ans.data.filter(company => {
-
-                                if (company.isActive)
-                                    return company.name.toLowerCase() === order.sellerSupplierPartyName.toLowerCase()
-                                else return false
-                            })
-
-                            let goods = [];
-                            order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem }));
-
-                            const k = SO.create({
-                                documentLines: goods,
-                                buyerCustomerParty: customer[0].partyKey,
-                                company: comp[0].companyKey
-
-                            })
-
-                            http('post', `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/sales/orders`, k)
-                                .then(ans => {
-                                    new Order({
-                                        doc: order.naturalKey,
-                                        tenant: tenant,
-                                        companyKey: order.company,
-                                        orderID: order.id,
-                                        processed: true,
-                                        typeOrder: 'PO'
-                                    })
-                                        .save()
-                                        .then(console.log('inserted PO with ' + order.id))
-                                        .catch(error => console.log(error))
-
-                                    new Order({
-                                        tenant: tenant2,
-                                        companyKey: k.company,
-                                        orderID: ans.data,
-                                        processed: true,
-                                        typeOrder: 'SO'
-                                    })
-                                        .save()
-                                        .then(console.log('inserted SO with ' + ans.data))
-                                        .catch(error => console.log(error))
-
-
-                                    new MasterDataProcesses({
-                                        orderId1: order.id,
-                                        orderId2: ans.data
-                                    })
-                                        .save()
-                                        .then(() => {
-                                            console.log('inserted processes: ' + order.id + " and " + ans.data)
-                                            res.json({ PO: order.id, SO: ans.data })
-                                        })
-                                        .catch(error => console.log(error))
-
-                                })
-                                .catch(err => res.json(err))
-
-                        }).catch(error => console.log(error))
-
-                })
-                .catch(erro2 => console.log(erro2))
-
-
-        })
-        .catch(respo => {
-            const { response } = respo
-            if (response.status === 401) {
-                requestAccessToken()
-                    .then(() => getOrders(req, res))
-                    .catch(error => console.log(error))
-            } else {
-                console.log(response)
-            }
-
-        })
 }
-
 
 module.exports = {
     requestAccessToken,
-    getOrders,
-    getDeliveryOrder
+    processPos,
+    processDOs
 }

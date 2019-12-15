@@ -3,7 +3,8 @@ const router = express.Router();
 const controller = require('../../controllers/request')
 
 /* GET users listing. */
-router.get('/', controller.getOrders);
-router.post('/', controller.getDeliveryOrder);
+router.post('/pos', controller.processPos);
+router.post('/dos', controller.processDOs);
 
+//router.post('/invoiceSales', controller.createSalesInvoice)
 module.exports = router;
