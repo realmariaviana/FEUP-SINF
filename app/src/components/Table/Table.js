@@ -7,6 +7,8 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
+import Checkbox from "@material-ui/core/Checkbox";
+import ProcessesButton from "components/CustomButtons/ProcessesButton.js";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/tableStyle.js";
 
@@ -14,16 +16,36 @@ const useStyles = makeStyles(styles);
 
 export default function CustomTable(props) {
   const classes = useStyles();
+
   const { tableHead, tableData, tableHeaderColor } = props;
 
-  //  Fetch POs
-  /*   
-  fetch('/api/companies/company', myInit)
-  .then(response => response.json())
-  .then(data=>{
-      console.log("Data received from /api/companies/company");
-      console.log(data)
-  })*/
+  const [selected, setSelected] = React.useState([]);
+
+  const isSelected = id => selected.indexOf(id) !== -1;
+
+  const handleClick = (event, id) => {
+    console.log("row : " + id + " clicked");
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelected(newSelected);
+  };
+
+  console.log("tableData iside table");
+  console.log(tableData);
 
   return (
     <div className={classes.tableResponsive}>
@@ -31,6 +53,8 @@ export default function CustomTable(props) {
         {tableHead !== undefined ? (
           <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
             <TableRow className={classes.tableHeadRow}>
+              <TableCell>
+              </TableCell>
               {tableHead.map((prop, key) => {
                 return (
                   <TableCell
@@ -46,8 +70,18 @@ export default function CustomTable(props) {
         ) : null}
         <TableBody>
           {tableData.map((prop, key) => {
+            const isItemSelected = isSelected(prop[1]);
             return (
-              <TableRow key={key} className={classes.tableBodyRow}>
+              <TableRow key={key}
+              className={classes.tableBodyRow} 
+              onClick={event => handleClick(event, prop[1])}
+              >
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={isItemSelected}
+                    //inputProps={{ 'aria-labelledby': labelId }}
+                  />
+                </TableCell>
                 {prop.map((prop, key) => {
                   return (
                     <TableCell className={classes.tableCell} key={key}>
@@ -60,6 +94,9 @@ export default function CustomTable(props) {
           })}
         </TableBody>
       </Table>
+      <ProcessesButton selected={selected} color="info">Handle Orders
+      </ProcessesButton>
+
     </div>
   );
 }

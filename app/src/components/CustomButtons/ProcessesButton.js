@@ -11,7 +11,7 @@ import styles from "assets/jss/material-dashboard-react/components/buttonStyle.j
 
 const useStyles = makeStyles(styles);
 
-export default function SettingsButton(props) {
+export default function ProcessesButton(props) {
   const classes = useStyles();
   const {
     color,
@@ -25,10 +25,7 @@ export default function SettingsButton(props) {
     justIcon,
     className,
     muiClasses,
-    tenant,
-    organization,
-    tenant2,
-    organization2,
+    selected,
     ...rest
   } = props;
 
@@ -45,29 +42,26 @@ export default function SettingsButton(props) {
     [className]: className
   });
 
-  function handleButton() {
+  function handleButton() { 
       console.log("BUTTON CLICKED");
+      console.log("Selected processes: ");
+      console.log(selected);
 
-      global["tenant1"] = tenant;
-      global["organization1"] = organization;
-      global["tenant2"] = tenant2;
-      global["organization2"] = organization2;
-
-      var myInit = { method: 'POST',
-                     headers: { tenant: tenant,
-                                organization: organization,
-                                tenant2: tenant2,
-                                organization2: organization2,
+      var myInit = { method: 'GET',   // TODO: provavelmente não vai ser esta a route
+                     headers: { //tenant: tenant,
+                                //organization: organization,
                                 "Content-Type": "application/json",
                                 "Accept": "application/json"
                               },
                      mode: 'cors',
-                     cache: 'default' };
+                     cache: 'default',
+                     body: { selected: selected }
+                     };
                      
-      fetch('/api/companies/company', myInit)
+      fetch('/api/users', myInit)
       .then(response => response.json())
       .then(data=>{
-          console.log("Data received from /api/companies/company");
+          console.log("Data received from /api/users/");
           console.log(data)
       })
   };
@@ -79,7 +73,7 @@ export default function SettingsButton(props) {
   );
 }
 
-SettingsButton.propTypes = {
+ProcessesButton.propTypes = {
   color: PropTypes.oneOf([
     "primary",
     "info",

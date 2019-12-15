@@ -49,10 +49,10 @@ const getPurchaseOrders = (req, res) => {
 
     console.log("Company_Controller: Getting purchase orders");
     
-    console.log(global["tenant1"]);
-    console.log(global["organization1"]);
+    console.log(req.headers.tenant);
+    console.log(req.headers.organization);
 
-    const url = `https://my.jasminsoftware.com/api/${global["tenant1"]}/${global["organization1"]}/purchases/orders?`
+    const url = `https://my.jasminsoftware.com/api/${req.headers.tenant}/${req.headers.organization}/purchases/orders?`
 
     http('get', url)
         .then(answer => {
