@@ -55,7 +55,6 @@ export default function ProcessesButton(props) {
                               },
                      mode: 'cors',
                      cache: 'default',
-                     body: { selected: selected }
                      };
                      
       fetch('/api/users', myInit)

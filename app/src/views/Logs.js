@@ -49,6 +49,11 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function TypographyPage() {
+  fetch('/api/logs/logs')
+      .then(response => response.json())
+      .then(data=>{
+          console.log(data)
+      });
   const classes = useStyles();
   return (
       <GridContainer>
