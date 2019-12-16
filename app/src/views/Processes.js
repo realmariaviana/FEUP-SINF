@@ -30,7 +30,7 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function MasterData() {
+const Processes = () => {
   
   console.log("Rendered page");
   const [tableData, setTableData] = useState([]);
@@ -79,24 +79,30 @@ export default function MasterData() {
 
   useEffect(() => {
 
-    console.log( global["tenant1"]);
-
-    //  Fetch POs
-    fetch('/api/companies/purchase_orders',{headers: {tenant: global["tenant1"], organization: global["organization1"]}})
+    fetch('/api/companies/company')
     .then(response => response.json())
-    .then(data=>{
-        console.log("Data received from /api/companies/purchase_orders");
-        parsePurchaseOrders(data);
+    .then(data => {
+      console.log("data");
+      console.log(data);
+
+      //  Fetch POs
+      fetch('/api/companies/purchase_orders',{headers: {tenant: data[0][0], organization: data[0][1]}})
+      .then(response => response.json())
+      .then(data=>{
+          console.log("Data received from /api/companies/purchase_orders");
+          parsePurchaseOrders(data);
+      })
+
+      //  Fetch POs company 2
+      fetch('/api/companies/purchase_orders',{headers: {tenant: data[1][0], organization: data[1][1]}})
+      .then(response => response.json())
+      .then(data=>{
+          console.log("Data received from /api/companies/purchase_orders");
+          parsePurchaseOrders2(data);
+      }) 
     })
 
-    //  Fetch POs company 2
-    fetch('/api/companies/purchase_orders',{headers: {tenant: global["tenant2"], organization: global["organization2"]}})
-    .then(response => response.json())
-    .then(data=>{
-        console.log("Data received from /api/companies/purchase_orders");
-        parsePurchaseOrders2(data);
-    }) 
-  },[])
+    }, [])
   
   const classes = useStyles();
 
@@ -126,7 +132,7 @@ export default function MasterData() {
             Process
             <Select
               value={org}
-              onChange={handleChange}
+              //onChange={handleChange}
               style={{width: 100}}
             >
               <MenuItem value={1}>1</MenuItem>
@@ -146,4 +152,7 @@ export default function MasterData() {
       </GridItem>
     </GridContainer>
   );
+
 }
+
+export default Processes

@@ -18,6 +18,8 @@ const getBodyData = (formObj) => {
 
 const http = (method, url, data, header) => {
 
+    console.log("globalll");
+    console.log(global['FEUP-SINF-Q']);
     const defaultHeader = {
         Authorization: "Bearer " + global['FEUP-SINF-Q'],
         "Content-Type": "application/json",
