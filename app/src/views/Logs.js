@@ -8,6 +8,7 @@ import Table from "components/Table/Table.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import '../assets/css/material-dashboard-react.css';
 
 const styles = {
   cardCategoryWhite: {
@@ -57,7 +58,7 @@ const TypographyPage = () => {
           <CardBody>
             <Table
               tableHeaderColor="gray"
-              tableHead={["ID", "DRESCRIPTION", "TIMESTAMP"]}
+              tableHead={["ID", "DESCRIPTION", "TIMESTAMP"]}
               tableData={
                 data
               }
