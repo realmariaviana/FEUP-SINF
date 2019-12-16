@@ -1,9 +1,14 @@
 'use strict'
 
-const LogModel = require('../models/logs')
+const Log = require('../models/logs')
 
 const listLogs = (req, res) => {
-    console.log(LogModel.find().size);
+    Log.find({})
+        .then(logs => {
+            let kapa = logs.map(x => [x.compId, x.message, x.createdAt])
+            res.send(kapa);
+        })
+        .catch(error => { console.log(error) });
 }
 
 module.exports = {

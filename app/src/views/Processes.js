@@ -2,42 +2,28 @@ import React, {useState, useEffect} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
-import Table from "components/Table/Table.js";
+import TableProcesses from "components/Table/TableProcesses.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import ProcessesButton from "components/CustomButtons/ProcessesButton.js";
 
 const styles = {
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
-      color: "rgba(255,255,255,.62)",
-      margin: "0",
-      fontSize: "14px",
-      marginTop: "0",
-      marginBottom: "0"
-    },
-    "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF"
-    }
-  },
-  cardTitleWhite: {
     color: "#FFFFFF",
     marginTop: "0px",
     minHeight: "auto",
-    fontWeight: "300",
+    fontWeight: "100",
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
     marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1"
+    textDecoration: "none"
+    
+    },
+    "& a,& a:hover,& a:focus": {
+      color: "#FFFFFF"
     }
   }
 };
@@ -119,13 +105,25 @@ export default function MasterData() {
       <GridItem xs={12} sm={10} md={10}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
-             Purchase Orders
-            </h4>
+            <p className={classes.cardCategoryWhite}>
+             Processes
+            </p>
           </CardHeader>
           <CardBody>
+          <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
+            Organization
+            <Select
+              value={org}
+              onChange={handleChange}
+              style={{width: 100}}
+            >
+              <MenuItem value={1}>SINFtech</MenuItem>
+              <MenuItem value={2}>SINFrent</MenuItem>
+            </Select>
+          </FormControl>
+
           <FormControl variant="outlined" className={classes.formControl}>
-            Organization:
+            Process
             <Select
               value={org}
               onChange={handleChange}
@@ -133,10 +131,13 @@ export default function MasterData() {
             >
               <MenuItem value={1}>1</MenuItem>
               <MenuItem value={2}>2</MenuItem>
+              <MenuItem value={2}>3</MenuItem>
+              <MenuItem value={2}>4</MenuItem>
             </Select>
           </FormControl>
-            <Table
-              tableHeaderColor="primary"
+
+            <TableProcesses
+              tableHeaderColor="black"
               tableHead={["Artigo", "Order ID", "Company"]}
               tableData={tableData}
             />

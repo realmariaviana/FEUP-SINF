@@ -1,7 +1,5 @@
 import React from "react";
-// @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-// core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Table from "components/Table/Table.js";
@@ -12,29 +10,16 @@ import CardBody from "components/Card/CardBody.js";
 const styles = {
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
-      color: "rgba(255,255,255,.62)",
-      margin: "0",
-      fontSize: "14px",
-      marginTop: "0",
-      marginBottom: "0"
-    },
-    "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF"
-    }
-  },
-  cardTitleWhite: {
     color: "#FFFFFF",
     marginTop: "0px",
     minHeight: "auto",
-    fontWeight: "300",
     fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
     marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1"
+    textDecoration: "none"
+    
+    },
+    "& a,& a:hover,& a:focus": {
+      color: "#FFFFFF"
     }
   }
 };
@@ -44,53 +29,110 @@ const useStyles = makeStyles(styles);
 export default function MasterData() {
   const classes = useStyles();
   return (
+    <div>
     <GridContainer>
-      <GridItem xs={12} sm={12} md={12}>
+      <GridItem xs={12} sm={6} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
-             Product Mapping
-            </h4>
+            <p className={classes.cardCategoryWhite}>
+             SINFtech Product Mapping
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
-              tableHead={["SINFtech Product ID", "SINFtech Product Description", "------------------>", "SINFrent Product ID" ,"SINFrent Product Description"]}
+              tableHeaderColor="black"
+              tableHead={["ID", "Description"]}
               tableData={[
-                ["22","Dakota Rice", "------------------>", "345" ,"Niger"],
-                ["43","Minerva Hooper", "------------------>", "433", "Curaçao"],
-                ["45", "Sage Rodriguez", "------------------>", "567", "Netherlands"],
-                ["4567","Philip Chaney","------------------>", "657", "South"],
-                ["568", "Doris Greene","------------------>", "3434", "Malawi"],
-                ["567 ","Mason Porter", "------------------>", "245", "Chile"]
+                ["22","Dakota Rice"],
+                ["43","Minerva Hooper"],
+                ["45", "Sage Rodriguez"],
+                ["4567","Philip Chaney"],
+                ["568", "Doris Greene"],
+                ["567 ","Mason Porter"]
+              ]}
+            />
+          </CardBody>
+        </Card>
+        </GridItem>
+
+        <h3>	&#60; = &#62;</h3>
+
+        <GridItem xs={12} sm={6} md={5}>
+        <Card>
+          <CardHeader color="info">
+            <p className={classes.cardCategoryWhite}>
+             SINFrent Product Mapping
+            </p>
+          </CardHeader>
+          <CardBody>
+            <Table
+              tableHeaderColor="black"
+              tableHead={["ID" ,"Description"]}
+              tableData={[
+                ["27","Niger"],
+                ["49","CURACAO"],
+                ["23", "Netherlands"],
+                ["4322","South"],
+                ["789", "Malawi"],
+                ["498 ","Portugal"]
               ]}
             />
           </CardBody>
         </Card>
       </GridItem>
-      <GridItem xs={12} sm={12} md={12}>
+      </GridContainer>
+
+
+
+      <GridContainer>
+      <GridItem xs={12} sm={12} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
+            <p className={classes.cardCategoryWhite}>
              Company Mapping
-            </h4>
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
-              tableHead={["Company ID", "Company Name", "------------------>", "Company ID", "Company Name"]}
+              tableHeaderColor="black"
+              tableHead={["Costumer ID", "Costumer Name"]}
               tableData={[
-                ["22","Dakota Rice", "------------------>", "345" ,"Niger"],
-                ["43","Minerva Hooper", "------------------>", "433", "Curaçao"],
-                ["45", "Sage Rodriguez", "------------------>", "567", "Netherlands"],
-                ["4567","Philip Chaney","------------------>", "657", "South"],
-                ["568", "Doris Greene","------------------>", "3434", "Malawi"],
-                ["567 ","Mason Porter", "------------------>", "245", "Chile"]
+                ["22","Dakota Rice"],
+                ["43","Minerva Hooper"],
+                ["45", "Sage Rodriguez"],
+                ["4567","Philip Chaney"],
+                ["568", "Doris Greene"],
+                ["567 ","Mason Porter"]
+              ]}
+            />
+          </CardBody>
+        </Card>
+      </GridItem>
+      <h3>	&#60; = &#62;</h3>
+      <GridItem xs={12} sm={12} md={5}>
+        <Card>
+          <CardHeader color="info">
+            <p className={classes.cardCategoryWhite}>
+             Company Mapping
+            </p>
+          </CardHeader>
+          <CardBody>
+            <Table
+              tableHeaderColor="black"
+              tableHead={["Supplier ID", "Supplier Name"]}
+              tableData={[
+                ["345" ,"Niger"],
+                ["433", "Curaçao"],
+                ["567", "Netherlands"],
+                ["4567","Philip Chaney"],
+                ["568", "Doris Greene"],
+                ["567 ","Mason Porter"]
               ]}
             />
           </CardBody>
         </Card>
       </GridItem>
     </GridContainer>
+    </div>
   );
 }
