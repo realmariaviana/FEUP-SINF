@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
-import Table from "components/Table/Table.js";
+import TableProcesses from "components/Table/TableProcesses.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
@@ -135,7 +135,7 @@ export default function MasterData() {
               <MenuItem value={2}>2</MenuItem>
             </Select>
           </FormControl>
-            <Table
+            <TableProcesses
               tableHeaderColor="primary"
               tableHead={["Artigo", "Order ID", "Company"]}
               tableData={tableData}
