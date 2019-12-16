@@ -48,47 +48,44 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function TypographyPage() {
+const TypographyPage = () => {
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
 
-  useEffect( () => {
-  fetch('/api/logs/logs')
+  useEffect(() => {
+    fetch('/api/logs/logs')
       .then(response => response.json())
-      .then(dataa =>{
+      .then(dataa => {
         console.log(dataa);
         setData(dataa);
       });
-     
-    }, []);
+
+  }, []);
   const classes = useStyles();
 
-  
-  if (data){ return (
-      <GridContainer>  
-        <GridItem xs={12} sm={12} md={12}>
-          <Card>
-            <CardHeader color="info">
-              <p className={classes.cardCategoryWhite}>
-                Mapeamento de Produtos
+
+  return (
+    <GridContainer>
+      <GridItem xs={12} sm={12} md={12}>
+        {data ? (<Card>
+          <CardHeader color="info">
+            <p className={classes.cardCategoryWhite}>
+              Mapeamento de Produtos
               </p>
-            </CardHeader>
-            <CardBody>
-              <Table
-                tableHeaderColor="primary"
-                tableHead={["ID", "TIMESTAMP", "DESCRIPTION"]}
-                tableData={[
-                  ["23", "2019/03/23 23:44:32", "Purchase rejected"],
-                  ["44", "2019/03/23 23:44:32", "Invoice payment missing"],
-                  ["837", "2019/03/23 23:44:32", "Payemnt of debt missing"],
-                  ["123", "2019/03/23 23:44:32", "Insufficient stock"],
-                  ["54", "2019/03/23 23:44:32", "Purchase rejected"],
-                ]}
-              />
-            </CardBody>
-          </Card>
-        </GridItem>
-      </GridContainer>
-    );}
-    else return <div></div>
+          </CardHeader>
+          <CardBody>
+            <Table
+              tableHeaderColor="primary"
+              tableHead={["ID", "TIMESTAMP", "DESCRIPTION"]}
+              tableData={
+                data
+              }
+            />
+          </CardBody>
+        </Card>) : ''} 
+      </GridItem>
+    </GridContainer>
+  );
 }
+
+export default TypographyPage

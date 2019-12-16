@@ -44,8 +44,6 @@ export default function CustomTable(props) {
     setSelected(newSelected);
   };
 
-  console.log("tableData iside table");
-  console.log(tableData);
 
   return (
     <div className={classes.tableResponsive}>
