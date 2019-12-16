@@ -137,7 +137,7 @@ export default function MasterData() {
           </FormControl>
 
             <TableProcesses
-              tableHeaderColor="gray"
+              tableHeaderColor="black"
               tableHead={["Artigo", "Order ID", "Company"]}
               tableData={tableData}
             />

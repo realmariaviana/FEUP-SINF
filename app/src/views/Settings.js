@@ -34,7 +34,7 @@ export default function Settings() {
   const classes = useStyles();
   return (
     <div>
-      <GridContainer class="col align-self-center">
+      <GridContainer className="col align-self-center">
         <GridItem md={8}>
           <Card>
             <CardHeader color="info">
@@ -42,7 +42,7 @@ export default function Settings() {
             </CardHeader>
             <CardBody  id="inputs">
               
-              <GridContainer class="row">
+              <GridContainer className="row">
 
                 <GridItem xs={6} md={6} >
                   <CustomInput
@@ -68,7 +68,7 @@ export default function Settings() {
 
               </GridContainer>
 
-              <GridContainer class="col align-self-center">
+              <GridContainer className="col align-self-center">
 
               <GridItem xs={6} md={6}>
                   <CustomInput

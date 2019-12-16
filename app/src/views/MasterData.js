@@ -40,7 +40,7 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="gray"
+              tableHeaderColor="black"
               tableHead={["ID", "Description"]}
               tableData={[
                 ["22","Dakota Rice"],
@@ -66,7 +66,7 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="gray"
+              tableHeaderColor="black"
               tableHead={["ID" ,"Description"]}
               tableData={[
                 ["27","Niger"],
@@ -94,7 +94,7 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="gray"
+              tableHeaderColor="black"
               tableHead={["Costumer ID", "Costumer Name"]}
               tableData={[
                 ["22","Dakota Rice"],
@@ -118,7 +118,7 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="gray"
+              tableHeaderColor="black"
               tableHead={["Supplier ID", "Supplier Name"]}
               tableData={[
                 ["345" ,"Niger"],
