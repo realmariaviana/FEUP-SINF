@@ -6,11 +6,9 @@ import TableProcesses from "components/Table/TableProcesses.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import ProcessesButton from "components/CustomButtons/ProcessesButton.js";
 
 const styles = {
   cardCategoryWhite: {
