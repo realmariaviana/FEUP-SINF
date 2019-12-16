@@ -106,12 +106,24 @@ export default function MasterData() {
         <Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
-             Purchase Orders
+             Processes
             </p>
           </CardHeader>
           <CardBody>
+          <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
+            Organization
+            <Select
+              value={org}
+              onChange={handleChange}
+              style={{width: 100}}
+            >
+              <MenuItem value={1}>SINFtech</MenuItem>
+              <MenuItem value={2}>SINFrent</MenuItem>
+            </Select>
+          </FormControl>
+
           <FormControl variant="outlined" className={classes.formControl}>
-            Organization:
+            Process
             <Select
               value={org}
               onChange={handleChange}
@@ -119,8 +131,11 @@ export default function MasterData() {
             >
               <MenuItem value={1}>1</MenuItem>
               <MenuItem value={2}>2</MenuItem>
+              <MenuItem value={2}>3</MenuItem>
+              <MenuItem value={2}>4</MenuItem>
             </Select>
           </FormControl>
+
             <TableProcesses
               tableHeaderColor="gray"
               tableHead={["Artigo", "Order ID", "Company"]}
