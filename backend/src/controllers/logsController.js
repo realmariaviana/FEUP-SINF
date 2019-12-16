@@ -1,9 +1,13 @@
 'use strict'
 
-const LogModel = require('../models/logs')
+const Log = require('../models/logs')
 
 const listLogs = (req, res) => {
-    console.log(LogModel.find().size);
+    Log.find({})
+    .then(logs => {
+        res.send(logs);
+    })
+    .catch(error => {console.log(error)});
 }
 
 module.exports = {

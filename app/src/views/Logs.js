@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 // core components
@@ -49,14 +49,23 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function TypographyPage() {
+
+  const [data, setData] = useState({});
+
+  useEffect( () => {
   fetch('/api/logs/logs')
       .then(response => response.json())
-      .then(data=>{
-          console.log(data)
+      .then(dataa =>{
+        console.log(dataa);
+        setData(dataa);
       });
+     
+    }, []);
   const classes = useStyles();
-  return (
-      <GridContainer>
+
+  
+  if (data){ return (
+      <GridContainer>  
         <GridItem xs={12} sm={12} md={12}>
           <Card>
             <CardHeader color="info">
@@ -80,5 +89,6 @@ export default function TypographyPage() {
           </Card>
         </GridItem>
       </GridContainer>
-    );
+    );}
+    else return <div></div>
 }
