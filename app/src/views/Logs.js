@@ -76,7 +76,7 @@ const TypographyPage = () => {
           <CardBody>
             <Table
               tableHeaderColor="primary"
-              tableHead={["ID", "TIMESTAMP", "DESCRIPTION"]}
+              tableHead={["ID", "DRESCRIPTION", "TIMESTAMP"]}
               tableData={
                 data
               }

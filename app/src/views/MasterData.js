@@ -55,14 +55,14 @@ export default function MasterData() {
           <CardBody>
             <Table
               tableHeaderColor="primary"
-              tableHead={["SINFtech Product ID", "SINFtech Product Description", "------------------>", "SINFrent Product ID" ,"SINFrent Product Description"]}
+              tableHead={["SINFtech Product ID", "SINFtech Product Description", "<------------------>", "SINFrent Product ID" ,"SINFrent Product Description"]}
               tableData={[
-                ["22","Dakota Rice", "------------------>", "345" ,"Niger"],
-                ["43","Minerva Hooper", "------------------>", "433", "Curaçao"],
-                ["45", "Sage Rodriguez", "------------------>", "567", "Netherlands"],
-                ["4567","Philip Chaney","------------------>", "657", "South"],
-                ["568", "Doris Greene","------------------>", "3434", "Malawi"],
-                ["567 ","Mason Porter", "------------------>", "245", "Chile"]
+                ["22","Dakota Rice", "", "345" ,"Niger"],
+                ["43","Minerva Hooper", "", "433", "Curaçao"],
+                ["45", "Sage Rodriguez", "", "567", "Netherlands"],
+                ["4567","Philip Chaney","", "657", "South"],
+                ["568", "Doris Greene","", "3434", "Malawi"],
+                ["567 ","Mason Porter", "", "245", "Chile"]
               ]}
             />
           </CardBody>
@@ -78,14 +78,14 @@ export default function MasterData() {
           <CardBody>
             <Table
               tableHeaderColor="primary"
-              tableHead={["Company ID", "Company Name", "------------------>", "Company ID", "Company Name"]}
+              tableHead={["Company ID", "Company Name", "<------------------>", "Company ID", "Company Name"]}
               tableData={[
-                ["22","Dakota Rice", "------------------>", "345" ,"Niger"],
-                ["43","Minerva Hooper", "------------------>", "433", "Curaçao"],
-                ["45", "Sage Rodriguez", "------------------>", "567", "Netherlands"],
-                ["4567","Philip Chaney","------------------>", "657", "South"],
-                ["568", "Doris Greene","------------------>", "3434", "Malawi"],
-                ["567 ","Mason Porter", "------------------>", "245", "Chile"]
+                ["22","Dakota Rice", "", "345" ,"Niger"],
+                ["43","Minerva Hooper", "", "433", "Curaçao"],
+                ["45", "Sage Rodriguez", "", "567", "Netherlands"],
+                ["4567","Philip Chaney","", "657", "South"],
+                ["568", "Doris Greene","", "3434", "Malawi"],
+                ["567 ","Mason Porter", "", "245", "Chile"]
               ]}
             />
           </CardBody>
