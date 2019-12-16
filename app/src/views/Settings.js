@@ -38,7 +38,7 @@ export default function Settings() {
         <GridItem md={8}>
           <Card>
             <CardHeader color="info">
-              <h4 className={classes.cardTitleWhite}>Edit Company</h4>
+              <p className={classes.cardTitleWhite}>Edit Company</p>
             </CardHeader>
             <CardBody  id="inputs">
               
