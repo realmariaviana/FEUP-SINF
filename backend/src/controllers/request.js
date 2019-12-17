@@ -18,8 +18,6 @@ const getBodyData = (formObj) => {
 
 const http = (method, url, data, header) => {
 
-    console.log("globalll");
-    console.log(global['FEUP-SINF-Q']);
     const defaultHeader = {
         Authorization: "Bearer " + global['FEUP-SINF-Q'],
         "Content-Type": "application/json",
@@ -90,7 +88,7 @@ const getAllSIs = async (tenant, filter) => {
 
         if (filter) {
             return invoices.data.filter(x => {
-                return filter.contains(x.naturalKey)
+                return filter.includes(x.naturalKey)
             })
         } else {
             return invoices.data.filter(x => {
@@ -153,7 +151,7 @@ const getAllDOs = async (tenant, filter) => {
         if (filter) {
 
             return deliveries.data.filter(x => {
-                return filter.contains(x.naturalKey)
+                return filter.includes(x.naturalKey)
             })
         }
         else
@@ -374,7 +372,7 @@ const getAllPOs = async (tenant, filter) => {
 
         if (filter) {
             return await tmpOrders.data.filter(async order => {
-                return filter.contains(order.naturalKey)
+                return filter.includes(order.naturalKey)
             })
         }
         else {
