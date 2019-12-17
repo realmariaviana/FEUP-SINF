@@ -2,6 +2,8 @@
 
 const axios = require('axios');
 const Company = require('../models/company');
+const Order = require('../models/order');
+const Log = require('../models/logs');
 const MapProduct = require('../models/MapProduct');
 const {http, requestAccessToken} = require('./request');
 
@@ -105,8 +107,8 @@ const saveTenantOrganization = (req, res) => {
 const saveTenantOrganizationDB = (tenant, organization, tenant2, organization2, company_name, company_name2) => {
     let company = new  Company({numComp: 1, tenant: tenant, organization: organization, compName: company_name});
     let company2 = new  Company({numComp: 2, tenant: tenant2, organization: organization2, compName: company_name2});
- 
-    Company.remove({})
+
+    Company.deleteMany({})
     .then(ans => {})
     .catch(err => console.log(err));
     
@@ -204,26 +206,20 @@ const createMapEntry = async (req, res) => {
     console.log("Creating product map entry");
     const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
     
-    entry.save((err, data) => {
+    entry.save(async (err, data) => {
         if (err)
             console.log(err);
-        getMapEntry(req.headers.product1, "sale");
+        let cena = await getMapEntry(req.headers.product1, "sale");
         res.status(200);
     });
 }
 
 const getMapEntry = async (productId, type) => {
     if(type=="sale"){
-        MapProduct.find({product1: productId})
-        .then(kpa => {
-            return kpa[0].product2;
-        })
+        return await MapProduct.findOne({product1: productId});
     }
     else{
-        MapProduct.find({product2: productId})
-        .then(kpa => {
-            return kpa[0].product1;
-        })
+        return await MapProduct.findOne({product2: productId});
     }
 
 }
