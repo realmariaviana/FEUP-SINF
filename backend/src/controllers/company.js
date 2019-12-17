@@ -73,11 +73,34 @@ const getPurchaseOrders = (req, res) => {
 }
 
 const getItens = (req, res) => {
-    const url = `https://my.jasminsoftware.com/api/224819/224819-0001/salescore/salesitems`
+    const url = `https://my.jasminsoftware.com/api/224819/224819-0001/salescore/salesitems`;
+    let returnResp;
+    let returnResp1;
     http('get', url)
         .then(answer => {
-            const ans = answer.data
-            res.json(ans.map(x=>[x.itemKey, x.description]));
+            const url = `https://my.jasminsoftware.com/api/224819/224819-0001/purchasesCore/purchasesitems`
+            http('get', url)
+            .then(answer1 =>{
+                const ans = answer.data
+                const ans1 = answer1.data
+                returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
+                returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                const url = `https://my.jasminsoftware.com/api/226335/226335-0001/salescore/salesitems`;
+                http('get', url)
+                .then(answer =>{
+                    const url = `https://my.jasminsoftware.com/api/226335/226335-0001/purchasesCore/purchasesitems`
+                    http('get', url)
+                    .then(answer1 =>{
+                        const ans = answer.data
+                        const ans1 = answer1.data
+                        returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
+                        returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                        let rp=[returnResp].concat([returnResp1]);
+                        res.json(rp);
+                    })
+                })
+            })
+            
             
         })
         .catch(respo => {
