@@ -147,53 +147,6 @@ const getPurchaseOrders = (req, res) => {
     
 }
 
-<<<<<<< HEAD
-const createMapEntry = (req, res) => {
-    console.log("Creating map entry");
-    const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
-    entry.save((err, data) => {
-        if (err)
-            console.log(err);
-        console.log(data);
-        res.status(200);
-    });
-}
-
-const getItens = async (req, res) => {
-    
-    let infos;
-    let companies;
-
-    try {
-        companies = await Company.find();
-        infos = companies.map(x=>[x.tenant, x.organization]);
-        console.log("TENANTS:" );
-        console.log(infos);
-        const url = `https://my.jasminsoftware.com/api/${infos[0][0]}/${infos[0][1]}/salescore/salesitems`;
-        let returnResp;
-        let returnResp1;
-        http('get', url)
-            .then(answer => {
-                const url = `https://my.jasminsoftware.com/api/${infos[0][0]}/${infos[0][1]}/purchasesCore/purchasesitems`
-                http('get', url)
-                .then(answer1 =>{
-                    const ans = answer.data
-                    const ans1 = answer1.data
-                    returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
-                    returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
-                    const url = `https://my.jasminsoftware.com/api/${infos[1][0]}/${infos[1][1]}/salescore/salesitems`;
-                    http('get', url)
-                    .then(answer =>{
-                        const url = `https://my.jasminsoftware.com/api/${infos[1][0]}/${infos[1][1]}/purchasesCore/purchasesitems`
-                        http('get', url)
-                        .then(answer1 =>{
-                            const ans = answer.data
-                            const ans1 = answer1.data
-                            returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
-                            returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
-                            let rp=[returnResp].concat([returnResp1]);
-                            res.json(rp);
-=======
 const getItens = (req, res) => {
     Company.find({numComp : '1'}).then(company1 => {
         let tenant1 = company1[0].tenant;
@@ -228,28 +181,11 @@ const getItens = (req, res) => {
                                 let rp=[name1].concat([returnResp]).concat([name2]).concat([returnResp1]);
                                 res.json(rp);
                             })
->>>>>>> refs/remotes/origin/master
                         })
                     })
                     
                     
                 })
-<<<<<<< HEAD
-                
-                
-            })
-            .catch(respo => {
-                const { response } = respo
-                if (response.status === 401) {
-                    requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
-                        .then(() => getItens(req, res))
-                        .catch(error => console.log(error))
-                }
-            })
-    } catch (err) {
-        console.log(err);
-    }
-=======
             .catch(respo => {
                 const { response } = respo
                 if (response.status === 401) {
@@ -262,8 +198,18 @@ const getItens = (req, res) => {
     })
     .catch(error => console.log(error));
 
+}
+
+const createMapEntry = (req, res) => {
+    console.log("Creating product map entry");
+    const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
     
->>>>>>> refs/remotes/origin/master
+    entry.save((err, data) => {
+        if (err)
+            console.log(err);
+        console.log(data);
+        res.status(200);
+    });
 }
 
 module.exports = {
