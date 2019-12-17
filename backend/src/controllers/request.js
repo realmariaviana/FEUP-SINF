@@ -303,7 +303,6 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         })
 
-
         await new Order({
             doc: order.naturalKey,
             tenant: tenant2,
@@ -338,7 +337,6 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"
     }
-
 }
 
 const processPos = async (req, res) => {
