@@ -97,65 +97,14 @@ export default function MasterData() {
         console.log(data);
       });
   };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
     return (
     <div>
-      <Button type="button" style={{backgroundColor:'green'}} onClick={handleOpen}>
-       + New Product
-      </Button>
 
       <Button onClick={handleClickUp} /*tenant={tenant} tenant2={tenant2} */ color="info">
         Map Products
       </Button>
 
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={open}
-        onClose={handleClose}
-      >
-        {data ? (<div style={modalStyle} className={classes.paper}>
-          <h4 id="simple-modal-title">Create a New Product</h4>
-          <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
-            Product {data[0]}
-            
-            <Select>
-        {data[1].map(x => {return (<MenuItem>{x[0]}</MenuItem>)})}
-            </Select>
-
-          </FormControl>
-
-          <CustomInput
-                    labelText="Product ID"
-                    id="id"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-          <CustomInput
-                    labelText="Product Name"
-                    id="name"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-
-            <CardFooter >
-              <Button  color="info">Save</Button>
-              <Button style={{backgroundColor:'red'}} onClick={handleClose} >Close</Button>
-            </CardFooter>
-        </div>) : ''}
-      </Modal>
-      {console.log(data)}
     <GridContainer>
-
       <GridItem xs={12} sm={6} md={5}>
         {data ? (
         <Card>
@@ -206,8 +155,8 @@ export default function MasterData() {
       <Button onClick={handleClickDown} /*tenant={tenant} tenant2={tenant2} */ color="info">
         Map Products
       </Button>
+
       <GridContainer>
-      
       <GridItem xs={12} sm={6} md={5}>
         {data ? (<Card>
           <CardHeader color="info">
@@ -254,5 +203,5 @@ export default function MasterData() {
       </GridItem>
       </GridContainer>
     </div>
-  );
+    );
 }
