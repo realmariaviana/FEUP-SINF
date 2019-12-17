@@ -6,31 +6,101 @@ import Table from "components/Table/Table.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import Modal from '@material-ui/core/Modal';
+import CustomInput from "components/CustomInput/CustomInput.js";
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import CardFooter from "components/Card/CardFooter.js";
+import Button from "components/CustomButtons/Button.js";
 
-const styles = {
-  cardCategoryWhite: {
-    "&,& a,& a:hover,& a:focus": {
-    color: "#FFFFFF",
-    marginTop: "0px",
-    minHeight: "auto",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none"
-    
-    },
-    "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF"
-    }
-  }
-};
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
 
-const useStyles = makeStyles(styles);
+function getModalStyle() {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
+const useStyles = makeStyles(theme => ({
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 export default function MasterData() {
   const classes = useStyles();
-  return (
+
+  const [modalStyle] = React.useState(getModalStyle);
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+    return (
     <div>
+      <Button type="button" style={{backgroundColor:'green'}} onClick={handleOpen}>
+       + New Product
+      </Button>
+
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={open}
+        onClose={handleClose}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <h4 id="simple-modal-title">Create a New Product</h4>
+
+          <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
+            Organization
+            <Select
+              style={{width: 100}}
+            >
+              <MenuItem value={1}>SINFtech</MenuItem>
+              <MenuItem value={2}>SINFrent</MenuItem>
+            </Select>
+          </FormControl>
+
+          <CustomInput
+                    labelText="Product ID"
+                    id="id"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                  />
+          <CustomInput
+                    labelText="Product Name"
+                    id="name"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                  />
+
+            <CardFooter >
+              <Button  color="info">Save</Button>
+            </CardFooter>
+        </div>
+      </Modal>
+
     <GridContainer>
+
       <GridItem xs={12} sm={6} md={5}>
         <Card>
           <CardHeader color="info">
