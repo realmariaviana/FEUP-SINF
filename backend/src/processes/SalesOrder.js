@@ -1,8 +1,6 @@
 'use strict'
 
 const moment = require('moment');
-const Order = require('../models/order')
-const Costumer = require('../models/costumer')
 
 const create = body => {
 
