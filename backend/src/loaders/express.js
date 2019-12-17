@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 
 const companiesRouter = require('../api/routes/companies');
 const usersRouter = require('../api/routes/users');
-const logsRouter = require('../api/routes/logsRouter')
+const logsRouter = require('../api/routes/logsRouter');
 
 module.exports = app => {
     // view engine setup

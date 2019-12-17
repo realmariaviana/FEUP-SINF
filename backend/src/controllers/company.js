@@ -72,8 +72,27 @@ const getPurchaseOrders = (req, res) => {
     
 }
 
+const getItens = (req, res) => {
+    const url = `https://my.jasminsoftware.com/api/224819/224819-0001/salescore/salesitems`
+    http('get', url)
+        .then(answer => {
+            const ans = answer.data
+            res.json(ans.map(x=>[x.itemKey, x.description]));
+            
+        })
+        .catch(respo => {
+            const { response } = respo
+            if (response.status === 401) {
+                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                    .then(() => getItens(req, res))
+                    .catch(error => console.log(error))
+            }
+        })
+}
+
 module.exports = {
     getCompanies,
     getPurchaseOrders,
-    saveTenantOrganization
+    saveTenantOrganization,
+    getItens
 }

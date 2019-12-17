@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -41,6 +41,18 @@ const styles = {
 const useStyles = makeStyles(styles);
 
 export default function MasterData() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/companies/company_itens')
+      .then(response => response.json())
+      .then(dataa => {
+        console.log(dataa);
+        setData(dataa);
+      });
+
+  }, []);
+
   const classes = useStyles();
   return (
     <GridContainer>
@@ -94,7 +106,6 @@ export default function MasterData() {
         </Card>
       </GridItem>
 
-      <Divider middle />
 
       <GridItem xs={12} sm={12} md={5}>
         <Card>
