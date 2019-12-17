@@ -191,5 +191,6 @@ module.exports = {
     getCompanies,
     getPurchaseOrders,
     saveTenantOrganization,
-    getCompaniesInfo
+    getCompaniesInfo,
+    getItens
 }
