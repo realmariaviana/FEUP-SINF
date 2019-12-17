@@ -2,6 +2,8 @@
 
 const axios = require('axios');
 const Company = require('../models/company');
+const Order = require('../models/order');
+const Log = require('../models/logs');
 const MapProduct = require('../models/MapProduct');
 const {http, requestAccessToken} = require('./request');
 
@@ -105,8 +107,8 @@ const saveTenantOrganization = (req, res) => {
 const saveTenantOrganizationDB = (tenant, organization, tenant2, organization2, company_name, company_name2) => {
     let company = new  Company({numComp: 1, tenant: tenant, organization: organization, compName: company_name});
     let company2 = new  Company({numComp: 2, tenant: tenant2, organization: organization2, compName: company_name2});
- 
-    Company.remove({})
+
+    Company.deleteMany({})
     .then(ans => {})
     .catch(err => console.log(err));
     
