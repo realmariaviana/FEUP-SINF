@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Table from "components/Table/Table.js";
+import TableMapping from "components/Table/TableMapping.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
@@ -12,6 +13,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import CardFooter from "components/Card/CardFooter.js";
+import MapButton from "components/CustomButtons/MapButton.js";
 import Button from "components/CustomButtons/Button.js";
 
 function rand() {
@@ -42,13 +44,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function MasterData() {
   const [data, setData] = useState();
+  const [selected1, setSelected1] = useState();
+  const [selected2, setSelected2] = useState();
 
   useEffect(() => {
     fetch('/api/companies/company_itens')
       .then(response => response.json())
-      .then(dataa => {
-       // console.log(dataa);
-        setData(dataa);
+      .then(data => {
+        console.log(data);
+        setData(data);
       });
   }, []);
 
@@ -58,6 +62,24 @@ export default function MasterData() {
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
   const [org] = React.useState('');
+
+  const handleClick = () => {
+    fetch('/api/companies/map', { method: 'POST',
+                                  headers: {
+                                            "Content-Type": "application/json",
+                                            "Accept": "application/json",
+                                            "product1": selected1,
+                                            "product2": selected2
+                                          },
+                                  mode: 'cors',
+                                  cache: 'default'
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data");
+        console.log(data);
+      });
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -70,6 +92,10 @@ export default function MasterData() {
     <div>
       <Button type="button" style={{backgroundColor:'green'}} onClick={handleOpen}>
        + New Product
+      </Button>
+
+      <Button onClick={handleClick} /*tenant={tenant} tenant2={tenant2} */ color="info">
+        Map Products
       </Button>
 
       <Modal
@@ -122,7 +148,9 @@ export default function MasterData() {
             </p>
           </CardHeader>
           <CardBody>
-            <Table
+            <TableMapping
+              setSelected={setSelected1}
+              selected={selected1}
               tableHeaderColor="black"
               tableHead={["ID", "Description", "Type"]}
               tableData={
@@ -144,7 +172,9 @@ export default function MasterData() {
             </p>
           </CardHeader>
           <CardBody>
-            <Table
+            <TableMapping
+              setSelected={setSelected2}
+              selected={selected2}
               tableHeaderColor="black"
               tableHead={["ID" ,"Description", "Type"]}
               tableData={
