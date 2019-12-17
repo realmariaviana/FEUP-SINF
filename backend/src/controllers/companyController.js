@@ -166,8 +166,8 @@ const getItens = (req, res) => {
                     .then(answer1 =>{
                         const ans = answer.data
                         const ans1 = answer1.data
-                        returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
-                        returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                        returnResp = [ans.map(x=>[x.itemKey, x.description, 'sales'])];
+                        returnResp= returnResp.concat([ans1.map(x=>[x.itemKey, x.description, 'purchase'])]);
                         const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/salescore/salesitems`;
                         http('get', url)
                         .then(answer =>{
@@ -176,8 +176,8 @@ const getItens = (req, res) => {
                             .then(answer1 =>{
                                 const ans = answer.data
                                 const ans1 = answer1.data
-                                returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
-                                returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                                returnResp1= [ans.map(x=>[x.itemKey, x.description, 'sales'])];
+                                returnResp1= returnResp1.concat([ans1.map(x=>[x.itemKey, x.description, 'purchase'])]);
                                 let rp=[name1].concat([returnResp]).concat([name2]).concat([returnResp1]);
                                 res.json(rp);
                             })
@@ -200,16 +200,32 @@ const getItens = (req, res) => {
 
 }
 
-const createMapEntry = (req, res) => {
+const createMapEntry = async (req, res) => {
     console.log("Creating product map entry");
     const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
     
     entry.save((err, data) => {
         if (err)
             console.log(err);
-        console.log(data);
+        getMapEntry(req.headers.product1, "sale");
         res.status(200);
     });
+}
+
+const getMapEntry = async (productId, type) => {
+    if(type=="sale"){
+        MapProduct.find({product1: productId})
+        .then(kpa => {
+            return kpa[0].product2;
+        })
+    }
+    else{
+        MapProduct.find({product2: productId})
+        .then(kpa => {
+            return kpa[0].product1;
+        })
+    }
+
 }
 
 module.exports = {
@@ -218,5 +234,6 @@ module.exports = {
     getPurchaseOrders,
     saveTenantOrganization,
     getCompaniesInfo,
-    getItens
+    getItens,
+    getMapEntry
 }
