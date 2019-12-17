@@ -147,44 +147,57 @@ const getPurchaseOrders = (req, res) => {
 }
 
 const getItens = (req, res) => {
-    const url = `https://my.jasminsoftware.com/api/224819/224819-0001/salescore/salesitems`;
-    let returnResp;
-    let returnResp1;
-    http('get', url)
-        .then(answer => {
-            const url = `https://my.jasminsoftware.com/api/224819/224819-0001/purchasesCore/purchasesitems`
+    Company.find({numComp : '1'}).then(company1 => {
+        let tenant1 = company1[0].tenant;
+        let organization1 = company1[0].organization;
+        let name1 = company1[0].compName;
+        Company.find({numComp : '2'}).then(company2 => {
+            let tenant2 = company2[0].tenant;
+            let organization2 = company2[0].organization;
+            let name2 = company2[0].compName;
+            const url = `https://my.jasminsoftware.com/api/${tenant1}/${organization1}/salescore/salesitems`;
+            let returnResp;
+            let returnResp1;
             http('get', url)
-            .then(answer1 =>{
-                const ans = answer.data
-                const ans1 = answer1.data
-                returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
-                returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
-                const url = `https://my.jasminsoftware.com/api/226335/226335-0001/salescore/salesitems`;
-                http('get', url)
-                .then(answer =>{
-                    const url = `https://my.jasminsoftware.com/api/226335/226335-0001/purchasesCore/purchasesitems`
+            .then(answer => {
+                    const url = `https://my.jasminsoftware.com/api/${tenant1}/${organization1}/purchasesCore/purchasesitems`
                     http('get', url)
                     .then(answer1 =>{
                         const ans = answer.data
                         const ans1 = answer1.data
-                        returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
-                        returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
-                        let rp=[returnResp].concat([returnResp1]);
-                        res.json(rp);
+                        returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
+                        returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                        const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/salescore/salesitems`;
+                        http('get', url)
+                        .then(answer =>{
+                            const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/purchasesCore/purchasesitems`
+                            http('get', url)
+                            .then(answer1 =>{
+                                const ans = answer.data
+                                const ans1 = answer1.data
+                                returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
+                                returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                                let rp=[name1].concat([returnResp]).concat([name2]).concat([returnResp1]);
+                                res.json(rp);
+                            })
+                        })
                     })
+                    
+                    
                 })
+            .catch(respo => {
+                const { response } = respo
+                if (response.status === 401) {
+                    requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                        .then(() => getItens(req, res))
+                        .catch(error => console.log(error))
+                }
             })
-            
-            
         })
-        .catch(respo => {
-            const { response } = respo
-            if (response.status === 401) {
-                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
-                    .then(() => getItens(req, res))
-                    .catch(error => console.log(error))
-            }
-        })
+    })
+    .catch(error => console.log(error));
+
+    
 }
 
 module.exports = {

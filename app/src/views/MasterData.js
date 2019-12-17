@@ -118,7 +118,7 @@ export default function MasterData() {
         {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
-             SINFtech Product Mapping
+             {data[0]} Product Mapping
             </p>
           </CardHeader>
           <CardBody>
@@ -126,7 +126,7 @@ export default function MasterData() {
               tableHeaderColor="black"
               tableHead={["ID", "Description", "Type"]}
               tableData={
-                data[0]
+                data[1]
               }
             />
     
@@ -140,7 +140,7 @@ export default function MasterData() {
         {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
-             SINFrent Product Mapping
+             {data[2]} Product Mapping
             </p>
           </CardHeader>
           <CardBody>
@@ -148,7 +148,7 @@ export default function MasterData() {
               tableHeaderColor="black"
               tableHead={["ID" ,"Description", "Type"]}
               tableData={
-                data[1]
+                data[3]
               }
             />
           </CardBody>
