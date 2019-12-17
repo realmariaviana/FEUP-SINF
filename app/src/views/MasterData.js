@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -41,6 +41,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MasterData() {
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    fetch('/api/companies/company_itens')
+      .then(response => response.json())
+      .then(dataa => {
+       // console.log(dataa);
+        setData(dataa);
+      });
+  }, []);
+
+
   const classes = useStyles();
 
   const [modalStyle] = React.useState(getModalStyle);
@@ -103,7 +115,7 @@ export default function MasterData() {
     <GridContainer>
 
       <GridItem xs={12} sm={6} md={5}>
-        <Card>
+        {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
              SINFtech Product Mapping
@@ -112,24 +124,20 @@ export default function MasterData() {
           <CardBody>
             <Table
               tableHeaderColor="black"
-              tableHead={["ID", "Description"]}
-              tableData={[
-                ["22","Dakota Rice"],
-                ["43","Minerva Hooper"],
-                ["45", "Sage Rodriguez"],
-                ["4567","Philip Chaney"],
-                ["568", "Doris Greene"],
-                ["567 ","Mason Porter"]
-              ]}
+              tableHead={["ID", "Description", "Type"]}
+              tableData={
+                data[0]
+              }
             />
+    
           </CardBody>
-        </Card>
+        </Card>) : ''}
         </GridItem>
 
         <h3>	&#60; = &#62;</h3>
 
         <GridItem xs={12} sm={6} md={5}>
-        <Card>
+        {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
              SINFrent Product Mapping
@@ -138,72 +146,15 @@ export default function MasterData() {
           <CardBody>
             <Table
               tableHeaderColor="black"
-              tableHead={["ID" ,"Description"]}
-              tableData={[
-                ["27","Niger"],
-                ["49","CURACAO"],
-                ["23", "Netherlands"],
-                ["4322","South"],
-                ["789", "Malawi"],
-                ["498 ","Portugal"]
-              ]}
+              tableHead={["ID" ,"Description", "Type"]}
+              tableData={
+                data[1]
+              }
             />
           </CardBody>
-        </Card>
+        </Card>) : ''}
       </GridItem>
       </GridContainer>
-
-
-
-      <GridContainer>
-      <GridItem xs={12} sm={12} md={5}>
-        <Card>
-          <CardHeader color="info">
-            <p className={classes.cardCategoryWhite}>
-             Company Mapping
-            </p>
-          </CardHeader>
-          <CardBody>
-            <Table
-              tableHeaderColor="black"
-              tableHead={["Costumer ID", "Costumer Name"]}
-              tableData={[
-                ["22","Dakota Rice"],
-                ["43","Minerva Hooper"],
-                ["45", "Sage Rodriguez"],
-                ["4567","Philip Chaney"],
-                ["568", "Doris Greene"],
-                ["567 ","Mason Porter"]
-              ]}
-            />
-          </CardBody>
-        </Card>
-      </GridItem>
-      <h3>	&#60; = &#62;</h3>
-      <GridItem xs={12} sm={12} md={5}>
-        <Card>
-          <CardHeader color="info">
-            <p className={classes.cardCategoryWhite}>
-             Company Mapping
-            </p>
-          </CardHeader>
-          <CardBody>
-            <Table
-              tableHeaderColor="black"
-              tableHead={["Supplier ID", "Supplier Name"]}
-              tableData={[
-                ["345" ,"Niger"],
-                ["433", "Curaçao"],
-                ["567", "Netherlands"],
-                ["4567","Philip Chaney"],
-                ["568", "Doris Greene"],
-                ["567 ","Mason Porter"]
-              ]}
-            />
-          </CardBody>
-        </Card>
-      </GridItem>
-    </GridContainer>
     </div>
   );
 }

@@ -7,7 +7,7 @@ router.get('/', controller.getCompanies);
 
 /* GET Purchase Orders listing. */
 router.get('/purchase_orders', controller.getPurchaseOrders);
-
+router.get('/company_itens', controller.getItens);
 /**
  * Create new Company
  */
