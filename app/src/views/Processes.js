@@ -43,8 +43,6 @@ const Processes = () => {
   const [org, setOrg] = React.useState('');
   
   const handleChange = event => {
-    console.log("info_org1");
-    console.log(info_org1);
     setOrg(event.target.value);
     if(event.target.value === 1){
       setTableData(info_org1);
@@ -56,7 +54,7 @@ const Processes = () => {
   function parsePurchaseOrders(data) {
     let info1 = [];
     data.forEach((entry) => {
-      console.log("entry");
+      console.log("entry1");
       console.log(entry);
       info1.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");
@@ -70,7 +68,7 @@ const Processes = () => {
   function parsePurchaseOrders2(data) {
     let info2 = [];
     data.forEach((entry) => {
-      console.log("entry");
+      console.log("entry2");
       console.log(entry);
       info2.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");

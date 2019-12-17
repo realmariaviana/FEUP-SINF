@@ -8,27 +8,25 @@ import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import Checkbox from "@material-ui/core/Checkbox";
-import ProcessesButton from "components/CustomButtons/ProcessesButton.js";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/tableStyle.js";
 
 const useStyles = makeStyles(styles);
 
-export default function TableProcesses(props) {
+export default function TableMapping(props) {
   const classes = useStyles();
 
-  const { tableHead, tableData, tableHeaderColor, tenant, tenant2 } = props;
+  const { tableHead, tableData, tableHeaderColor, tenant, tenant2, selected, setSelected } = props;
 
-  const [selected, setSelected] = React.useState([]);
+  //const [selected, setSelected] = React.useState();
 
-  const isSelected = id => selected.indexOf(id) !== -1;
+  const isSelected = id => selected === id;
 
   const handleClick = (event, id) => {
     console.log("row : " + id + " clicked");
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
+    setSelected(id);
 
-    if (selectedIndex === -1) {
+/*     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
@@ -39,9 +37,8 @@ export default function TableProcesses(props) {
         selected.slice(0, selectedIndex),
         selected.slice(selectedIndex + 1),
       );
-    }
+    } */
 
-    setSelected(newSelected);
   };
 
   return (
@@ -50,8 +47,6 @@ export default function TableProcesses(props) {
         {tableHead !== undefined ? (
           <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
             <TableRow className={classes.tableHeadRow}>
-              <TableCell>
-              </TableCell>
               {tableHead.map((prop, key) => {
                 return (
                   <TableCell
@@ -68,18 +63,20 @@ export default function TableProcesses(props) {
         <TableBody>
           {tableData.map((prop, key) => {
             const isItemSelected = isSelected(prop[0]);
+            if(isItemSelected)
+                var color = "grey";
             return (
-              <TableRow key={key}
-              className={classes.tableBodyRow} 
+              <TableRow 
+              key={key}
+              className={classes.tableBodyRow}
               onClick={event => handleClick(event, prop[0])}
-              hover
               >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={isItemSelected}
-                    //inputProps={{ 'aria-labelledby': labelId }}
-                  />
-                </TableCell>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={isItemSelected}
+                  //inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </TableCell>
                 {prop.map((prop, key) => {
                   return (
                     <TableCell className={classes.tableCell} key={key}>
@@ -92,18 +89,17 @@ export default function TableProcesses(props) {
           })}
         </TableBody>
       </Table>
-      <ProcessesButton selected={selected} tenant={tenant} tenant2={tenant2} color="info">Handle Orders
-      </ProcessesButton>
 
     </div>
   );
 }
 
-TableProcesses.defaultProps = {
+TableMapping.defaultProps = {
   tableHeaderColor: "gray"
 };
 
-TableProcesses.propTypes = {
+TableMapping.propTypes = {
+
   tableHeaderColor: PropTypes.oneOf([
     "warning",
     "primary",

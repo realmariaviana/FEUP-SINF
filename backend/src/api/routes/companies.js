@@ -18,4 +18,9 @@ router.get('/company', controller.getCompaniesInfo);
  */
 router.post('/company', controller.saveTenantOrganization);
 
+/**
+ * Create mapped products entry
+ */
+router.post('/map', controller.createMapEntry);
+
 module.exports = router;
