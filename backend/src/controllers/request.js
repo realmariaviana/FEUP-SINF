@@ -98,7 +98,7 @@ const getAllSIs = async (tenant, filter) => {
             })
         }
 
-    } catch (e) {
+    } catch (e) {   
         const { response } = e
         if (response.status === 401) {
             await requestAccessToken()
@@ -138,7 +138,6 @@ const processSI = async (req, res) => {
 
 
 const createPI = async (invoice, tenant) => {
-
     
 
 
@@ -317,7 +316,6 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
 
-
         await new Order({
             tenant: tenant,
             companyKey: k.company,
@@ -334,6 +332,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
 
     } catch (e) {
+        
         // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
         // E DAR LOG DELES
 
@@ -342,11 +341,13 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
 }
 
-
 const processPos = async (req, res) => {
     const names = req.body.names
     const tenant = req.body.tenant
     const tenant2 = req.body.tenant2
+    console.log(req.body);
+    console.log(tenant);
+    console.log(tenant2);
 
     let orders;
     try {
@@ -363,6 +364,7 @@ const processPos = async (req, res) => {
         console.log(e)
     }
 }
+
 const getAllPOs = async (tenant, filter) => {
 
     try {

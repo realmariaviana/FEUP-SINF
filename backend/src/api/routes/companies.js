@@ -11,7 +11,7 @@ router.get('/purchase_orders', controller.getPurchaseOrders);
 /**
  * Create new Company
  */
-router.get('/company', controller.getTenantOrganization);
+router.get('/company', controller.getCompaniesInfo);
 
 /**
  * Create new Company

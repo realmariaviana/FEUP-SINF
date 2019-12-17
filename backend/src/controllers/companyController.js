@@ -25,11 +25,11 @@ const getCompanies = (req, res) => {
         })
 }
 
-const getTenantOrganization = (req, res) => {
-    console.log("get tenant organization");
+const getCompaniesInfo = (req, res) => {
+    console.log("getCompaniesInfo: ");
     Company.find()
     .then(companies => {
-        let cenas = companies.map(x => [x.tenant, x.organization]);
+        let cenas = companies.map(x => [x.tenant, x.organization, x.compName]);
         res.json(cenas);
     })
 ;
@@ -125,16 +125,13 @@ const saveTenantOrganizationDB = (tenant, organization, tenant2, organization2, 
 const getPurchaseOrders = (req, res) => {
 
     console.log("Company_Controller: Getting purchase orders");
-    
-    console.log(req.headers.tenant);
-    console.log(req.headers.organization);
 
     const url = `https://my.jasminsoftware.com/api/${req.headers.tenant}/${req.headers.organization}/purchases/orders?`
 
     http('get', url)
         .then(answer => {
             const POs = answer.data
-            console.log("Received purchase orders for organization " + global["organization1"] + ':');
+            console.log("Received purchase orders for organization " + req.headers.organization + ':');
             console.log(POs)
             res.send(POs)
         })
@@ -153,5 +150,5 @@ module.exports = {
     getCompanies,
     getPurchaseOrders,
     saveTenantOrganization,
-    getTenantOrganization
+    getCompaniesInfo
 }

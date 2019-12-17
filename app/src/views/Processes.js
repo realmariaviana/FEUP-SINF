@@ -34,6 +34,8 @@ const Processes = () => {
   
   console.log("Rendered page");
   const [tableData, setTableData] = useState([]);
+  const [name_org1, setNameOrg1] = useState([]);
+  const [name_org2, setNameOrg2] = useState([]);
   const [info_org1, setInfoOrg1] = useState([]);
   const [info_org2, setInfoOrg2] = useState([]);
   const [org, setOrg] = React.useState('');
@@ -85,6 +87,10 @@ const Processes = () => {
       console.log("data");
       console.log(data);
 
+      setNameOrg1(data[0][2]);
+      setNameOrg2(data[1][2]);
+
+
       //  Fetch POs
       fetch('/api/companies/purchase_orders',{headers: {tenant: data[0][0], organization: data[0][1]}})
       .then(response => response.json())
@@ -123,8 +129,8 @@ const Processes = () => {
               onChange={handleChange}
               style={{width: 100}}
             >
-              <MenuItem value={1}>SINFtech</MenuItem>
-              <MenuItem value={2}>SINFrent</MenuItem>
+              <MenuItem value={1}>{name_org1}</MenuItem>
+              <MenuItem value={2}>{name_org2}</MenuItem>
             </Select>
           </FormControl>
 
