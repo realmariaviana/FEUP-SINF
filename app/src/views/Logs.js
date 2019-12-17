@@ -30,7 +30,7 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-const TypographyPage = () => {
+const Logs = () => {
 
   const [data, setData] = useState([]);
 
@@ -58,7 +58,7 @@ const TypographyPage = () => {
           <CardBody>
             <Table
               tableHeaderColor="black"
-              tableHead={["ID", "DESCRIPTION", "TIMESTAMP"]}
+              tableHead={["CompanyID", "DESCRIPTION", "TIMESTAMP"]}
               tableData={
                 data
               }
@@ -70,4 +70,4 @@ const TypographyPage = () => {
   );
 }
 
-export default TypographyPage
+export default Logs

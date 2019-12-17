@@ -30,12 +30,16 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-export default function MasterData() {
+const Processes = () => {
   
   console.log("Rendered page");
   const [tableData, setTableData] = useState([]);
+  const [name_org1, setNameOrg1] = useState([]);
+  const [name_org2, setNameOrg2] = useState([]);
   const [info_org1, setInfoOrg1] = useState([]);
   const [info_org2, setInfoOrg2] = useState([]);
+  const [tenant, setTenant] = useState("");
+  const [tenant2, setTenant2] = useState("");
   const [org, setOrg] = React.useState('');
   
   const handleChange = event => {
@@ -54,7 +58,7 @@ export default function MasterData() {
     data.forEach((entry) => {
       console.log("entry");
       console.log(entry);
-      info1.push([entry.documentLines[0].purchasesItem, entry.documentLines[0].orderId, entry.company]);
+      info1.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");
     });
     console.log("info");
@@ -68,7 +72,7 @@ export default function MasterData() {
     data.forEach((entry) => {
       console.log("entry");
       console.log(entry);
-      info2.push([entry.documentLines[0].purchasesItem, entry.documentLines[0].orderId, entry.company]);
+      info2.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");
     });
     console.log("info2");
@@ -79,24 +83,36 @@ export default function MasterData() {
 
   useEffect(() => {
 
-    console.log( global["tenant1"]);
-
-    //  Fetch POs
-    fetch('/api/companies/purchase_orders',{headers: {tenant: global["tenant1"], organization: global["organization1"]}})
+    fetch('/api/companies/company')
     .then(response => response.json())
-    .then(data=>{
-        console.log("Data received from /api/companies/purchase_orders");
-        parsePurchaseOrders(data);
+    .then(data => {
+      console.log("data");
+      console.log(data);
+
+      setNameOrg1(data[0][2]);
+      setNameOrg2(data[1][2]);
+
+      setTenant(data[0][0]);
+      setTenant2(data[1][0]);
+
+      //  Fetch POs
+      fetch('/api/companies/purchase_orders',{headers: {tenant: data[0][0], organization: data[0][1]}})
+      .then(response => response.json())
+      .then(data=>{
+          console.log("Data received from /api/companies/purchase_orders");
+          parsePurchaseOrders(data);
+      })
+
+      //  Fetch POs company 2
+      fetch('/api/companies/purchase_orders',{headers: {tenant: data[1][0], organization: data[1][1]}})
+      .then(response => response.json())
+      .then(data=>{
+          console.log("Data received from /api/companies/purchase_orders");
+          parsePurchaseOrders2(data);
+      }) 
     })
 
-    //  Fetch POs company 2
-    fetch('/api/companies/purchase_orders',{headers: {tenant: global["tenant2"], organization: global["organization2"]}})
-    .then(response => response.json())
-    .then(data=>{
-        console.log("Data received from /api/companies/purchase_orders");
-        parsePurchaseOrders2(data);
-    }) 
-  },[])
+    }, [])
   
   const classes = useStyles();
 
@@ -117,8 +133,8 @@ export default function MasterData() {
               onChange={handleChange}
               style={{width: 100}}
             >
-              <MenuItem value={1}>SINFtech</MenuItem>
-              <MenuItem value={2}>SINFrent</MenuItem>
+              <MenuItem value={1}>{name_org1}</MenuItem>
+              <MenuItem value={2}>{name_org2}</MenuItem>
             </Select>
           </FormControl>
 
@@ -138,12 +154,17 @@ export default function MasterData() {
 
             <TableProcesses
               tableHeaderColor="black"
-              tableHead={["Artigo", "Order ID", "Company"]}
+              tableHead={["OrderKey", "Company"]}
               tableData={tableData}
+              tenant={tenant}
+              tenant2={tenant2}
             />
           </CardBody>
         </Card>
       </GridItem>
     </GridContainer>
   );
+
 }
+
+export default Processes

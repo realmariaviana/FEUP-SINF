@@ -1,12 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../../controllers/company')
+const controller = require('../../controllers/companyController')
 
 /* GET companies listing. */
 router.get('/', controller.getCompanies);
 
 /* GET Purchase Orders listing. */
 router.get('/purchase_orders', controller.getPurchaseOrders);
+router.get('/company_itens', controller.getItens);
+/**
+ * Create new Company
+ */
+router.get('/company', controller.getCompaniesInfo);
 
 /**
  * Create new Company

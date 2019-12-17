@@ -17,4 +17,3 @@ const logSchema = new Schema( {
 const Log = mongoose.model('log', logSchema)
 
 module.exports = Log
-
