@@ -8,7 +8,30 @@ const Order = require('../models/order')
 const SO = require('../processes/SalesOrder')
 const Invoice = require('../processes/Invoice')
 const Receive = require('../processes/Receive')
-const {saveLog} = require('./logsController');
+const { saveLog } = require('./logsController');
+
+
+const init = (req, res) => {
+    console.log(req.headers)
+
+    setInterval(processPOs(req.headers.tenant2, req.headers.tenant), 10000);
+    setInterval(processDOs(req.headers.tenant2, req.headers.tenant), 10000);
+    setInterval(processSI(req.headers.tenant2, req.headers.tenant), 10000);
+    setInterval(processP(req.headers.tenant2, req.headers.tenant), 10000);
+    res.status(200).json('oi')
+}
+
+const init2 = (req, res) => {
+    console.log(req.headers)
+
+    setInterval(processPOs(req.headers.tenant, req.headers.tenant2), 10000);
+    setInterval(processDOs(req.headers.tenant, req.headers.tenant2), 10000);
+    setInterval(processSI(req.headers.tenant, req.headers.tenant2), 10000);
+    setInterval(processP(req.headers.tenant, req.headers.tenant2), 10000);
+    res.status(200).json('oi')
+
+}
+
 
 const getBodyData = (formObj) => {
     const bodyData = new FormData()
@@ -104,24 +127,22 @@ const getAllPs = async (tenant, filter) => {
 }
 
 
-const processP = async (req, res) => {
-
+function processP(req, res) {
     try {
         const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+        const tenant = req
+        const tenant2 = res
 
         let payments;
 
         if (names)
-            payments = await getAllPs(tenant, names)
+            payments = getAllPs(tenant, names)
         else
-            payments = await getAllPs(tenant)
+            payments = getAllPs(tenant)
 
 
-        await payments.forEach(payment => createP(payment, tenant2))
+        payments.forEach(payment => createP(payment, tenant2))
 
-        res.json('done')
 
     } catch (e) {
         console.log(e)
@@ -197,22 +218,22 @@ const getAllSIs = async (tenant, filter) => {
 }
 
 
-const processSI = async (req, res) => {
+function processSI(req, res) {
 
     try {
         const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+        const tenant = req
+        const tenant2 = res
 
         let invoices;
 
         if (names)
-            invoices = await getAllSIs(tenant, names)
+            invoices = getAllSIs(tenant, names)
         else
-            invoices = await getAllSIs(tenant)
+            invoices = getAllSIs(tenant)
 
 
-        await invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
+        invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
 
         res.json('done')
 
@@ -313,23 +334,24 @@ const getAllDOs = async (tenant, filter) => {
     }
 }
 
-const processDOs = async (req, res) => {
+
+function processDOs(req, res) {
     try {
         const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+        const tenant = req
+        const tenant2 = res
         let deliveries;
 
         if (names)
-            deliveries = await getAllDOs(tenant, names)
+            deliveries = getAllDOs(tenant, names)
         else
-            deliveries = await getAllDOs(tenant)
+            deliveries = getAllDOs(tenant)
 
 
-        await deliveries.forEach(delivery => createGR(delivery, tenant2))
+        deliveries.forEach(delivery => createGR(delivery, tenant2))
         //await createGR(deliveries, tenant)
 
-        res.json('done')
+
 
     } catch (e) {
         console.log(e)
@@ -423,6 +445,7 @@ const createGR = async (delivery, tenant) => {
 const createSalesOrder = async (order, tenant1, tenant2) => {
 
     try {
+        console.log(order.naturalKey + " " + order.id)
 
         const tenant = tenant1
         //const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
@@ -448,8 +471,8 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         })
 
         let goods = [];
-        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem, quantity: x.quantity, unit: x.unit, unitPrice: x.unitPrice }));
 
+        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem, quantity: x.quantity, unit: x.unit, unitPrice: x.unitPrice }));
         const k = SO.create({
             paymentMethod: order.paymentMethod,
             discount: order.discount,
@@ -488,7 +511,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
 
     } catch (e) {
-
+        console.log(e)
 
         // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
         // E DAR LOG DELES
@@ -498,22 +521,22 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
 }
 
-const processPos = async (req, res) => {
+function processPos(req, res) {
 
     const names = req.body.names
-    const tenant = req.body.tenant
-    const tenant2 = req.body.tenant2
+    const tenant = req
+    const tenant2 = res
 
     let orders;
     try {
         if (names)
-            orders = await getAllPOs(tenant, names)
+            orders = getAllPOs(tenant, names)
         else
-            orders = await getAllPOs(tenant)
+            orders = getAllPOs(tenant)
 
         orders.forEach(order => createSalesOrder(order, tenant2, tenant))
 
-        res.status(200).json('done')
+
 
     } catch (e) {
         console.log(e)
@@ -557,5 +580,8 @@ module.exports = {
     processPos,
     processDOs,
     processSI,
-    processP
+    processP,
+    init,
+    init2
+
 }

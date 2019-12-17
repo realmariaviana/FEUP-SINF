@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import styles from "assets/jss/material-dashboard-react/components/buttonStyle.js";
+import { createRestTypeNode } from "typescript";
 
 const useStyles = makeStyles(styles);
 
@@ -32,6 +33,8 @@ export default function SettingsButton(props) {
     ...rest
   } = props;
 
+  const array = []
+
   const btnClasses = classNames({
     [classes.button]: true,
     [classes[size]]: size,
@@ -46,37 +49,74 @@ export default function SettingsButton(props) {
   });
 
   function handleButton() {
-      console.log("BUTTON CLICKED");
+    console.log("BUTTON CLICKED");
 
-      global["tenant1"] = tenant;
-      global["organization1"] = organization;
-      global["tenant2"] = tenant2;
-      global["organization2"] = organization2;
+    global["tenant1"] = tenant;
+    global["organization1"] = organization;
+    global["tenant2"] = tenant2;
+    global["organization2"] = organization2;
 
-      var myInit = { method: 'POST',
-                     headers: { tenant: tenant,
-                                organization: organization,
-                                tenant2: tenant2,
-                                organization2: organization2,
-                                "Content-Type": "application/json",
-                                "Accept": "application/json"
-                              },
-                     mode: 'cors',
-                     cache: 'default' };
-                     
-      fetch('/api/companies/company', myInit)
+    var myInit = {
+      method: 'POST',
+      headers: {
+        tenant: tenant,
+        organization: organization,
+        tenant2: tenant2,
+        organization2: organization2,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      mode: 'cors',
+      cache: 'default'
+    };
+
+    fetch('/api/companies/company', myInit)
       .then(response => response.json())
-      .then(data=>{
-          console.log("Data received from /api/companies/company");
-          console.log(data)
+      .then(data => {
+        fetch('/api/users/start', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            tenant2: tenant,
+            tenant: tenant2
+          },
+          mode: 'cors',
+          cache: 'default',
+          body: {
+            tenant: tenant,
+            tenant2: tenant2
+          }
+        }).then()
+          .then()
+
+          fetch('/api/users/start2', {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              tenant2: tenant,
+              tenant: tenant2
+            },
+            mode: 'cors',
+            cache: 'default',
+          
+          }).then()
+            .then()
+        console.log("Data received from /api/companies/company");
+        console.log(data)
+
       })
-  };
+
+
+  }
 
   return (
     <Button {...rest} onClick={handleButton} classes={muiClasses} className={btnClasses}>
       {children}
     </Button>
   );
+
 }
 
 SettingsButton.propTypes = {

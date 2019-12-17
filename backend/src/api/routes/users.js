@@ -7,5 +7,7 @@ router.post('/pos', controller.processPos);
 router.post('/dos', controller.processDOs);
 router.post('/sis', controller.processSI);
 router.post('/ps', controller.processP)
+router.post('/start', controller.init)
+router.post('/start2', controller.init2)
 //router.post('/invoiceSales', controller.createSalesInvoice)
 module.exports = router;
