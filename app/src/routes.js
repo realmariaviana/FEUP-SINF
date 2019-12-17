@@ -1,5 +1,5 @@
 import Dashboard from "@material-ui/icons/Dashboard";
-import Person from "@material-ui/icons/Person";
+import SettingsIcon from '@material-ui/icons/Settings';
 import LibraryBooks from "@material-ui/icons/LibraryBooks";
 import Processes from "views/Processes.js";
 import Settings from "views/Settings.js";
@@ -17,7 +17,7 @@ const dashboardRoutes = [
   {
     path: "/settings",
     name: "Settings",
-    icon: Person,
+    icon: SettingsIcon,
     component: Settings,
     layout: "/admin"
   },

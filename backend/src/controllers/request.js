@@ -6,7 +6,8 @@ const FormData = require('form-data');
 const MasterDataProcesses = require('../models/masterdata')
 const Order = require('../models/order')
 const SO = require('../processes/SalesOrder')
-
+const Invoice = require('../processes/Invoice')
+const Receive = require('../processes/Receive')
 
 const getBodyData = (formObj) => {
     const bodyData = new FormData()
@@ -24,12 +25,6 @@ const http = (method, url, data, header) => {
     }
 
     const headers = header ? { ...defaultHeader, ...header } : defaultHeader;
-
-    // console.log("Sending request to: ");
-    // console.log(url);
-    // console.log(method);
-    // console.log(data);
-    // console.log(headers);
 
     if (data)
         return axios({
@@ -78,6 +73,87 @@ const requestAccessToken = async () => {
 }
 
 
+const getAllPs = async (tenant, filter) => {
+
+    try {
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/accountsPayable/payments`
+
+        const payments = await http('get', url)
+
+        if (filter) {
+            return payments.data.filter(x => {
+                return filter.includes(x.naturalKey)
+            })
+        } else {
+            return payments.data.filter(x => {
+                return !x.isDeleted
+            })
+        }
+
+    } catch (e) {
+        const { response } = e
+        if (response.status === 401) {
+            await requestAccessToken()
+            return getAllPs(tenant, filter)
+
+        } else {
+            console.log(response)
+        }
+    }
+}
+
+
+const processP = async (req, res) => {
+
+    try {
+        const names = req.body.name
+        const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
+
+        let payments;
+
+        if (names)
+            payments = await getAllPs(tenant, names)
+        else
+            payments = await getAllPs(tenant)
+
+
+        await payments.forEach(payment => createP(payment, tenant2))
+
+        res.json('done')
+
+    } catch (e) {
+        console.log(e)
+    }
+
+}
+
+
+const createP = async (payment, tenant) => {
+
+    try {
+        const urlCreate = (companyKey) => `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/accountsReceivable/processOpenItems/${companyKey}`
+
+
+        const vfa = await Order.findOne({ orderID: payment.documentLines[0].sourceDocId })
+
+
+        if (!vfa) {
+            throw ('gay')
+        }
+        const process = await MasterDataProcesses.findOne({ orderId2: vfa.orderID })
+
+        const fa = await Order.findOne({ orderID: process.orderId1 })
+
+        const body = Receive.create(fa.doc,0)
+
+        const kapa = await http('post', urlCreate(fa.companyKey), [body])
+
+    } catch (e) {
+        console.log(e)
+    }
+
+}
 
 const getAllSIs = async (tenant, filter) => {
 
@@ -114,6 +190,8 @@ const processSI = async (req, res) => {
     try {
         const names = req.body.name
         const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
+
         let invoices;
 
         if (names)
@@ -122,9 +200,8 @@ const processSI = async (req, res) => {
             invoices = await getAllSIs(tenant)
 
 
-        await invoices.forEach(invoice => createPI(invoice, tenant))
+        await invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
 
-        
         res.json('done')
 
     } catch (e) {
@@ -133,12 +210,64 @@ const processSI = async (req, res) => {
 
 }
 
+// invoice is from tenant 
+const createPI = async (invoice, tenant2, tenant) => {
+
+    try {
+        const urlCreate = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/invoiceReceipt/invoices`
+        const urlCompanies = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
+        const urlSupp = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchasesCore/supplierParties`
 
 
-const createPI = async (invoice, tenant) => {
-    
+        const comp = await http('get', urlCompanies)
+
+        const supp = await http('get', urlSupp)
 
 
+        const company = comp.data.filter(company => {
+            if (company.isActive)
+                return company.name.toLowerCase() === invoice.buyerCustomerPartyName.toLowerCase()
+            else return false
+        })[0]
+
+        const supplier = supp.data.filter(company => {
+            if (company.isActive)
+                return company.name.toLowerCase() === invoice.companyDescription.toLowerCase()
+            else return false
+        })[0]
+
+        const body = Invoice.create(invoice, company.companyKey, supplier.partyKey)
+
+        const id = await http('post', urlCreate, body)
+        console.log(id)
+
+        await new Order({
+            doc: invoice.naturalKey,
+            tenant: tenant2,
+            companyKey: invoice.company,
+            orderID: invoice.id,
+            typeOrder: invoice.documentType
+        }).save()
+
+        console.log('FA')
+
+        await new Order({
+            tenant: tenant,
+            companyKey: company.companyKey,
+            orderID: id.data,
+            typeOrder: 'VFA'
+        }).save()
+        console.log('VFA')
+
+        await new MasterDataProcesses({
+            orderId1: invoice.id,
+            orderId2: id.data
+        }).save()
+        console.log('MP')
+        //// GUARDA NA BASE DE DADOS
+    } catch (e) {
+        //console.log(e)
+    }
 }
 
 
@@ -264,6 +393,7 @@ const createGR = async (delivery, tenant) => {
 
 
 
+// create ONE SO
 const createSalesOrder = async (order, tenant1, tenant2) => {
 
     try {
@@ -399,5 +529,7 @@ module.exports = {
     http,
     requestAccessToken,
     processPos,
-    processDOs
+    processDOs,
+    processSI,
+    processP
 }

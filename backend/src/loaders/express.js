@@ -26,7 +26,7 @@ module.exports = app => {
 
     app.use('/api/users', usersRouter);
     app.use('/api/companies', companiesRouter);
-    app.use('/api/logs', logsRouter)
+    app.use('/api/logs', logsRouter);
 
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {

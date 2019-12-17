@@ -147,6 +147,7 @@ const getPurchaseOrders = (req, res) => {
     
 }
 
+<<<<<<< HEAD
 const createMapEntry = (req, res) => {
     console.log("Creating map entry");
     const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
@@ -192,9 +193,48 @@ const getItens = async (req, res) => {
                             returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
                             let rp=[returnResp].concat([returnResp1]);
                             res.json(rp);
+=======
+const getItens = (req, res) => {
+    Company.find({numComp : '1'}).then(company1 => {
+        let tenant1 = company1[0].tenant;
+        let organization1 = company1[0].organization;
+        let name1 = company1[0].compName;
+        Company.find({numComp : '2'}).then(company2 => {
+            let tenant2 = company2[0].tenant;
+            let organization2 = company2[0].organization;
+            let name2 = company2[0].compName;
+            const url = `https://my.jasminsoftware.com/api/${tenant1}/${organization1}/salescore/salesitems`;
+            let returnResp;
+            let returnResp1;
+            http('get', url)
+            .then(answer => {
+                    const url = `https://my.jasminsoftware.com/api/${tenant1}/${organization1}/purchasesCore/purchasesitems`
+                    http('get', url)
+                    .then(answer1 =>{
+                        const ans = answer.data
+                        const ans1 = answer1.data
+                        returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
+                        returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                        const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/salescore/salesitems`;
+                        http('get', url)
+                        .then(answer =>{
+                            const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/purchasesCore/purchasesitems`
+                            http('get', url)
+                            .then(answer1 =>{
+                                const ans = answer.data
+                                const ans1 = answer1.data
+                                returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
+                                returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                                let rp=[name1].concat([returnResp]).concat([name2]).concat([returnResp1]);
+                                res.json(rp);
+                            })
+>>>>>>> refs/remotes/origin/master
                         })
                     })
+                    
+                    
                 })
+<<<<<<< HEAD
                 
                 
             })
@@ -209,6 +249,21 @@ const getItens = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
+=======
+            .catch(respo => {
+                const { response } = respo
+                if (response.status === 401) {
+                    requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                        .then(() => getItens(req, res))
+                        .catch(error => console.log(error))
+                }
+            })
+        })
+    })
+    .catch(error => console.log(error));
+
+    
+>>>>>>> refs/remotes/origin/master
 }
 
 module.exports = {

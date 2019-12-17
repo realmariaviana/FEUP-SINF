@@ -15,14 +15,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CardFooter from "components/Card/CardFooter.js";
 import MapButton from "components/CustomButtons/MapButton.js";
 import Button from "components/CustomButtons/Button.js";
-
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
+import { element } from "prop-types";
 
 function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
+  const top = 50;
+  const left = 50;
 
   return {
     top: `${top}%`,
@@ -36,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     width: 400,
     backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
+    border: '1px solid #000',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
@@ -104,16 +101,12 @@ export default function MasterData() {
         open={open}
         onClose={handleClose}
       >
-        <div style={modalStyle} className={classes.paper}>
+        {data ? (<div style={modalStyle} className={classes.paper}>
           <h4 id="simple-modal-title">Create a New Product</h4>
           <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
-            Organization
-            <Select
-               value={org}
-              style={{width: 100}}
-            >
-              <MenuItem value={1}>SINFtech</MenuItem>
-              <MenuItem value={2}>SINFrent</MenuItem>
+            Product {data[0]}
+            <Select>
+        {data[1].map(x => {return (<MenuItem>{x[0]}</MenuItem>)})}
             </Select>
           </FormControl>
 
@@ -134,8 +127,9 @@ export default function MasterData() {
 
             <CardFooter >
               <Button  color="info">Save</Button>
+              <Button style={{backgroundColor:'red'}} onClick={handleClose} >Close</Button>
             </CardFooter>
-        </div>
+        </div>) : ''}
       </Modal>
 
     <GridContainer>
@@ -144,7 +138,7 @@ export default function MasterData() {
         {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
-             SINFtech Product Mapping
+             {data[0]} Product Mapping
             </p>
           </CardHeader>
           <CardBody>
@@ -154,7 +148,7 @@ export default function MasterData() {
               tableHeaderColor="black"
               tableHead={["ID", "Description", "Type"]}
               tableData={
-                data[0]
+                data[1]
               }
             />
     
@@ -168,7 +162,7 @@ export default function MasterData() {
         {data ? (<Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
-             SINFrent Product Mapping
+             {data[2]} Product Mapping
             </p>
           </CardHeader>
           <CardBody>
@@ -178,7 +172,7 @@ export default function MasterData() {
               tableHeaderColor="black"
               tableHead={["ID" ,"Description", "Type"]}
               tableData={
-                data[1]
+                data[3]
               }
             />
           </CardBody>

@@ -2,8 +2,15 @@
 
 const Log = require('../models/logs')
 
+const saveLog = async (stringlog, companyID) => {
+    await new Log({
+        message: stringlog,
+        compId: companyID
+    }).save();
+}
+
 const listLogs = (req, res) => {
-    Log.find({})
+    Log.find({}).sort('-createdAt')
         .then(logs => {
             let kapa = logs.map(x => [x.compId, x.message, new Date(x.createdAt).toGMTString()])
             res.send(kapa);
@@ -12,6 +19,7 @@ const listLogs = (req, res) => {
 }
 
 module.exports = {
-    listLogs
+    listLogs,
+    saveLog
 }
 
