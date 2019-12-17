@@ -10,7 +10,7 @@ const mapproductSchema = new Schema( {
     product2: {type: String, required: true}
 }, 
 {
-    timestamps: true,
+    timestamps: false,
 })
 
 

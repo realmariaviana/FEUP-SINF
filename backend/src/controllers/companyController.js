@@ -200,16 +200,32 @@ const getItens = (req, res) => {
 
 }
 
-const createMapEntry = (req, res) => {
+const createMapEntry = async (req, res) => {
     console.log("Creating product map entry");
     const entry = new MapProduct({product1: req.headers.product1, product2: req.headers.product2});
     
     entry.save((err, data) => {
         if (err)
             console.log(err);
-        console.log(data);
+        getMapEntry(req.headers.product1, "sale");
         res.status(200);
     });
+}
+
+const getMapEntry = async (productId, type) => {
+    if(type=="sale"){
+        MapProduct.find({product1: productId})
+        .then(kpa => {
+            return kpa[0].product2;
+        })
+    }
+    else{
+        MapProduct.find({product2: productId})
+        .then(kpa => {
+            return kpa[0].product1;
+        })
+    }
+
 }
 
 module.exports = {
@@ -218,5 +234,6 @@ module.exports = {
     getPurchaseOrders,
     saveTenantOrganization,
     getCompaniesInfo,
-    getItens
+    getItens,
+    getMapEntry
 }

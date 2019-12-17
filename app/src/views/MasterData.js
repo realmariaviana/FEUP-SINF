@@ -85,8 +85,8 @@ export default function MasterData() {
                                   headers: {
                                             "Content-Type": "application/json",
                                             "Accept": "application/json",
-                                            "product1": selected3,
-                                            "product2": selected4
+                                            "product1": selected4,
+                                            "product2": selected3
                                           },
                                   mode: 'cors',
                                   cache: 'default'
