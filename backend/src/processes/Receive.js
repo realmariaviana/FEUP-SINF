@@ -2,7 +2,7 @@
 
 const moment = require('moment');
 
-const create = (sourceDoc, discount) => {
+const create = (sourceDoc, discount, settled) => {
 
     // const line = body.documentLines.map(item => {
     //     return {
@@ -15,8 +15,7 @@ const create = (sourceDoc, discount) => {
     const receive = {
         sourceDoc: sourceDoc,
         discount: discount,
-        "settled": true
-
+        "settled": settled
     }
 
     return receive;
