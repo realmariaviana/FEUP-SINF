@@ -13,6 +13,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import CardFooter from "components/Card/CardFooter.js";
 import Button from "components/CustomButtons/Button.js";
+import { element } from "prop-types";
 
 function getModalStyle() {
   const top = 50;
@@ -74,17 +75,12 @@ export default function MasterData() {
         open={open}
         onClose={handleClose}
       >
-        <div style={modalStyle} className={classes.paper}>
+        {data ? (<div style={modalStyle} className={classes.paper}>
           <h4 id="simple-modal-title">Create a New Product</h4>
           <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
-            Organization
-            <Select
-               value={org}
-              // onChange={handleChange}
-              style={{width: 100}}
-            >
-              <MenuItem value={1}>SINFtech</MenuItem>
-              <MenuItem value={2}>SINFrent</MenuItem>
+            Product {data[0]}
+            <Select>
+        {data[1].map(x => {return (<MenuItem>{x[0]}</MenuItem>)})}
             </Select>
           </FormControl>
 
@@ -107,7 +103,7 @@ export default function MasterData() {
               <Button  color="info">Save</Button>
               <Button style={{backgroundColor:'red'}} onClick={handleClose} >Close</Button>
             </CardFooter>
-        </div>
+        </div>) : ''}
       </Modal>
 
     <GridContainer>

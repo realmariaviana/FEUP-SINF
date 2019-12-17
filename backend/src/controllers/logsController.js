@@ -2,6 +2,13 @@
 
 const Log = require('../models/logs')
 
+const saveLog = async (stringlog, companyID) => {
+    await new Log({
+        message: stringlog,
+        compId: companyID
+    }).save();
+}
+
 const listLogs = (req, res) => {
     Log.find({}).sort('-createdAt')
         .then(logs => {
@@ -12,6 +19,7 @@ const listLogs = (req, res) => {
 }
 
 module.exports = {
-    listLogs
+    listLogs,
+    saveLog
 }
 
