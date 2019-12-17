@@ -166,8 +166,8 @@ const getItens = (req, res) => {
                     .then(answer1 =>{
                         const ans = answer.data
                         const ans1 = answer1.data
-                        returnResp = ans.map(x=>[x.itemKey, x.description, 'sales']);
-                        returnResp= returnResp.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                        returnResp = [ans.map(x=>[x.itemKey, x.description, 'sales'])];
+                        returnResp= returnResp.concat([ans1.map(x=>[x.itemKey, x.description, 'purchase'])]);
                         const url = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/salescore/salesitems`;
                         http('get', url)
                         .then(answer =>{
@@ -176,8 +176,8 @@ const getItens = (req, res) => {
                             .then(answer1 =>{
                                 const ans = answer.data
                                 const ans1 = answer1.data
-                                returnResp1= ans.map(x=>[x.itemKey, x.description, 'sales']);
-                                returnResp1= returnResp1.concat(ans1.map(x=>[x.itemKey, x.description, 'purchase']));
+                                returnResp1= [ans.map(x=>[x.itemKey, x.description, 'sales'])];
+                                returnResp1= returnResp1.concat([ans1.map(x=>[x.itemKey, x.description, 'purchase'])]);
                                 let rp=[name1].concat([returnResp]).concat([name2]).concat([returnResp1]);
                                 res.json(rp);
                             })

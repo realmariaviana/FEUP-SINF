@@ -131,11 +131,12 @@ export default function MasterData() {
             </CardFooter>
         </div>) : ''}
       </Modal>
-
+      {console.log(data)}
     <GridContainer>
 
       <GridItem xs={12} sm={6} md={5}>
-        {data ? (<Card>
+        {data ? (
+        <Card>
           <CardHeader color="info">
             <p className={classes.cardCategoryWhite}>
              {data[0]} Product Mapping
@@ -146,9 +147,9 @@ export default function MasterData() {
               setSelected={setSelected1}
               selected={selected1}
               tableHeaderColor="black"
-              tableHead={["ID", "Description", "Type"]}
+              tableHead={["", "ID", "Description", "Type"]}
               tableData={
-                data[1]
+                data[1][0]
               }
             />
     
@@ -170,9 +171,59 @@ export default function MasterData() {
               setSelected={setSelected2}
               selected={selected2}
               tableHeaderColor="black"
-              tableHead={["ID" ,"Description", "Type"]}
+              tableHead={["", "ID" ,"Description", "Type"]}
               tableData={
-                data[3]
+                data[3][1]
+              }
+            />
+          </CardBody>
+        </Card>) : ''}
+      </GridItem>
+
+
+
+
+
+
+      <GridItem xs={12} sm={6} md={5}>
+        {data ? (<Card>
+          <CardHeader color="info">
+            <p className={classes.cardCategoryWhite}>
+             {data[0]} Product Mapping
+            </p>
+          </CardHeader>
+          <CardBody>
+            <TableMapping
+              setSelected={setSelected1}
+              selected={selected1}
+              tableHeaderColor="black"
+              tableHead={["", "ID", "Description", "Type"]}
+              tableData={
+                data[1][1]
+              }
+            />
+    
+          </CardBody>
+        </Card>) : ''}
+        </GridItem>
+
+        <h3>	&#60; = &#62;</h3>
+
+        <GridItem xs={12} sm={6} md={5}>
+        {data ? (<Card>
+          <CardHeader color="info">
+            <p className={classes.cardCategoryWhite}>
+             {data[2]} Product Mapping
+            </p>
+          </CardHeader>
+          <CardBody>
+            <TableMapping
+              setSelected={setSelected2}
+              selected={selected2}
+              tableHeaderColor="black"
+              tableHead={["", "ID" ,"Description", "Type"]}
+              tableData={
+                data[3][0]
               }
             />
           </CardBody>
