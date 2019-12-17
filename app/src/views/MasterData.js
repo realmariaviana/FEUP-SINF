@@ -43,6 +43,8 @@ export default function MasterData() {
   const [data, setData] = useState();
   const [selected1, setSelected1] = useState();
   const [selected2, setSelected2] = useState();
+  const [selected3, setSelected3] = useState();
+  const [selected4, setSelected4] = useState();
 
   useEffect(() => {
     fetch('/api/companies/company_itens')
@@ -60,13 +62,31 @@ export default function MasterData() {
   const [open, setOpen] = React.useState(false);
   const [org] = React.useState('');
 
-  const handleClick = () => {
+  const handleClickUp = () => {
     fetch('/api/companies/map', { method: 'POST',
                                   headers: {
                                             "Content-Type": "application/json",
                                             "Accept": "application/json",
                                             "product1": selected1,
                                             "product2": selected2
+                                          },
+                                  mode: 'cors',
+                                  cache: 'default'
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data");
+        console.log(data);
+      });
+  };
+
+  const handleClickDown = () => {
+    fetch('/api/companies/map', { method: 'POST',
+                                  headers: {
+                                            "Content-Type": "application/json",
+                                            "Accept": "application/json",
+                                            "product1": selected3,
+                                            "product2": selected4
                                           },
                                   mode: 'cors',
                                   cache: 'default'
@@ -91,7 +111,7 @@ export default function MasterData() {
        + New Product
       </Button>
 
-      <Button onClick={handleClick} /*tenant={tenant} tenant2={tenant2} */ color="info">
+      <Button onClick={handleClickUp} /*tenant={tenant} tenant2={tenant2} */ color="info">
         Map Products
       </Button>
 
@@ -105,9 +125,11 @@ export default function MasterData() {
           <h4 id="simple-modal-title">Create a New Product</h4>
           <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
             Product {data[0]}
+            
             <Select>
         {data[1].map(x => {return (<MenuItem>{x[0]}</MenuItem>)})}
             </Select>
+
           </FormControl>
 
           <CustomInput
@@ -179,12 +201,13 @@ export default function MasterData() {
           </CardBody>
         </Card>) : ''}
       </GridItem>
+      </GridContainer>
 
-
-
-
-
-
+      <Button onClick={handleClickDown} /*tenant={tenant} tenant2={tenant2} */ color="info">
+        Map Products
+      </Button>
+      <GridContainer>
+      
       <GridItem xs={12} sm={6} md={5}>
         {data ? (<Card>
           <CardHeader color="info">
@@ -194,8 +217,8 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <TableMapping
-              setSelected={setSelected1}
-              selected={selected1}
+              setSelected={setSelected3}
+              selected={selected3}
               tableHeaderColor="black"
               tableHead={["", "ID", "Description", "Type"]}
               tableData={
@@ -218,8 +241,8 @@ export default function MasterData() {
           </CardHeader>
           <CardBody>
             <TableMapping
-              setSelected={setSelected2}
-              selected={selected2}
+              setSelected={setSelected4}
+              selected={selected4}
               tableHeaderColor="black"
               tableHead={["", "ID" ,"Description", "Type"]}
               tableData={
