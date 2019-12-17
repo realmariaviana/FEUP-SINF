@@ -45,6 +45,7 @@ export default function MasterData() {
 
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
+  const [org] = React.useState('');
 
   const handleOpen = () => {
     setOpen(true);
@@ -67,10 +68,10 @@ export default function MasterData() {
       >
         <div style={modalStyle} className={classes.paper}>
           <h4 id="simple-modal-title">Create a New Product</h4>
-
           <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
             Organization
             <Select
+               value={org}
               style={{width: 100}}
             >
               <MenuItem value={1}>SINFtech</MenuItem>
