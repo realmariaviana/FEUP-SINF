@@ -142,7 +142,7 @@ const Processes = () => {
             Process
             <Select
               value={org}
-              //onChange={handleChange}
+              onChange={handleChange}
               style={{width: 100}}
             >
               <MenuItem value={1}>1</MenuItem>
