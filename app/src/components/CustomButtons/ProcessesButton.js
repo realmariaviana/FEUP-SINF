@@ -26,6 +26,8 @@ export default function ProcessesButton(props) {
     className,
     muiClasses,
     selected,
+    tenant,
+    tenant2,
     ...rest
   } = props;
 
@@ -42,22 +44,26 @@ export default function ProcessesButton(props) {
     [className]: className
   });
 
-  function handleButton() { 
+  function handleButton() {
       console.log("BUTTON CLICKED");
       console.log("Selected processes: ");
       console.log(selected);
 
-      var myInit = { method: 'GET',   // TODO: provavelmente não vai ser esta a route
-                     headers: { //tenant: tenant,
-                                //organization: organization,
+      var myInit = { method: 'POST',
+                     headers: {
                                 "Content-Type": "application/json",
                                 "Accept": "application/json"
                               },
+                     body: JSON.stringify({
+                             tenant: tenant,
+                             tenant2: tenant2,
+                             names: selected
+                            }),
                      mode: 'cors',
-                     cache: 'default',
+                     cache: 'default'
                      };
                      
-      fetch('/api/users', myInit)
+      fetch('/api/users/pos', myInit)
       .then(response => response.json())
       .then(data=>{
           console.log("Data received from /api/users/");

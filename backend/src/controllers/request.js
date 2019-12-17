@@ -303,6 +303,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         })
 
+
         await new Order({
             doc: order.naturalKey,
             tenant: tenant2,
@@ -337,15 +338,15 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"
     }
+
 }
 
 const processPos = async (req, res) => {
+    console.log("TEEEEEEEEEEEEEEEEEEEEEEST");
     const names = req.body.names
     const tenant = req.body.tenant
     const tenant2 = req.body.tenant2
-    console.log(req.body);
-    console.log(tenant);
-    console.log(tenant2);
+    console.log(req.body.names);
 
     let orders;
     try {

@@ -17,7 +17,7 @@ const useStyles = makeStyles(styles);
 export default function TableProcesses(props) {
   const classes = useStyles();
 
-  const { tableHead, tableData, tableHeaderColor } = props;
+  const { tableHead, tableData, tableHeaderColor, tenant, tenant2 } = props;
 
   const [selected, setSelected] = React.useState([]);
 
@@ -68,11 +68,11 @@ export default function TableProcesses(props) {
         ) : null}
         <TableBody>
           {tableData.map((prop, key) => {
-            const isItemSelected = isSelected(prop[1]);
+            const isItemSelected = isSelected(prop[0]);
             return (
               <TableRow key={key}
               className={classes.tableBodyRow} 
-              onClick={event => handleClick(event, prop[1])}
+              onClick={event => handleClick(event, prop[0])}
               >
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -92,7 +92,7 @@ export default function TableProcesses(props) {
           })}
         </TableBody>
       </Table>
-      <ProcessesButton selected={selected} color="info">Handle Orders
+      <ProcessesButton selected={selected} tenant={tenant} tenant2={tenant2} color="info">Handle Orders
       </ProcessesButton>
 
     </div>

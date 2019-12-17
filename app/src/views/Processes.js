@@ -38,6 +38,8 @@ const Processes = () => {
   const [name_org2, setNameOrg2] = useState([]);
   const [info_org1, setInfoOrg1] = useState([]);
   const [info_org2, setInfoOrg2] = useState([]);
+  const [tenant, setTenant] = useState("");
+  const [tenant2, setTenant2] = useState("");
   const [org, setOrg] = React.useState('');
   
   const handleChange = event => {
@@ -56,7 +58,7 @@ const Processes = () => {
     data.forEach((entry) => {
       console.log("entry");
       console.log(entry);
-      info1.push([entry.documentLines[0].purchasesItem, entry.documentLines[0].orderId, entry.company]);
+      info1.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");
     });
     console.log("info");
@@ -70,7 +72,7 @@ const Processes = () => {
     data.forEach((entry) => {
       console.log("entry");
       console.log(entry);
-      info2.push([entry.documentLines[0].purchasesItem, entry.documentLines[0].orderId, entry.company]);
+      info2.push([entry.naturalKey, entry.company]);
       //addTableEntry(entry.documentLines[0].purchasesItem, "company");
     });
     console.log("info2");
@@ -90,6 +92,8 @@ const Processes = () => {
       setNameOrg1(data[0][2]);
       setNameOrg2(data[1][2]);
 
+      setTenant(data[0][0]);
+      setTenant2(data[1][0]);
 
       //  Fetch POs
       fetch('/api/companies/purchase_orders',{headers: {tenant: data[0][0], organization: data[0][1]}})
@@ -150,8 +154,10 @@ const Processes = () => {
 
             <TableProcesses
               tableHeaderColor="black"
-              tableHead={["Artigo", "Order ID", "Company"]}
+              tableHead={["OrderKey", "Company"]}
               tableData={tableData}
+              tenant={tenant}
+              tenant2={tenant2}
             />
           </CardBody>
         </Card>
