@@ -84,6 +84,7 @@ export default function MasterData() {
             Organization
             <Select
                value={org}
+              // onChange={handleChange}
               style={{width: 100}}
             >
               <MenuItem value={1}>SINFtech</MenuItem>
@@ -108,6 +109,7 @@ export default function MasterData() {
 
             <CardFooter >
               <Button  color="info">Save</Button>
+              <Button style={{backgroundColor:'red'}} onClick={handleClose} >Close</Button>
             </CardFooter>
         </div>
       </Modal>
