@@ -4,6 +4,8 @@ const moment = require('moment');
 
 const create = (body, company, seller) => {
 
+    
+
     const line = body.documentLines.map(item => {
         return {
             PurchasesItem: item.salesItem,

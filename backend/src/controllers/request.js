@@ -135,18 +135,31 @@ const createP = async (payment, tenant) => {
     try {
         const urlCreate = (companyKey) => `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/accountsReceivable/processOpenItems/${companyKey}`
 
-        const vfa = await Order.findOne({ orderID: payment.documentLines[0].sourceDocId })
+        let array = [];
+        let fa = '';
 
-        if (!vfa) {
-            throw ('No Order found')
+        for (let lol of payment.documentLines) {
+
+
+            const vfa = await Order.findOne({ orderID: lol.sourceDocId })
+
+            if (!vfa) {
+                throw ('No Order found')
+            }
+
+            const process = await MasterDataProcesses.findOne({ orderId2: vfa.orderID })
+            const fa2 = await Order.findOne({ orderID: process.orderId1 })
+
+            fa = fa2.companyKey
+            const body = Receive.create(fa2.doc, lol.discountAmount, lol.settledAmount.amount)
+
+            array.push(body)
+
         }
-        const process = await MasterDataProcesses.findOne({ orderId2: vfa.orderID })
+        console.log(array)
 
-        const fa = await Order.findOne({ orderID: process.orderId1 })
+        const kapa = await http('post', urlCreate(fa), array)
 
-        const body = Receive.create(fa.doc,0)
-
-        const kapa = await http('post', urlCreate(fa.companyKey), [body])
 
         saveLog("SUCCESS: Created Payment", fa.companyKey);
 
@@ -175,7 +188,7 @@ const getAllSIs = async (tenant, filter) => {
             })
         }
 
-    } catch (e) {   
+    } catch (e) {
         const { response } = e
         if (response.status === 401) {
             await requestAccessToken()
@@ -238,6 +251,7 @@ const createPI = async (invoice, tenant2, tenant) => {
                 return company.name.toLowerCase() === invoice.companyDescription.toLowerCase()
             else return false
         })[0]
+
 
         const body = Invoice.create(invoice, company.companyKey, supplier.partyKey)
 
@@ -307,6 +321,7 @@ const processDOs = async (req, res) => {
     try {
         const names = req.body.name
         const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
         let deliveries;
 
         if (names)
@@ -315,7 +330,7 @@ const processDOs = async (req, res) => {
             deliveries = await getAllDOs(tenant)
 
 
-        await deliveries.forEach(delivery => createGR(delivery, tenant))
+        await deliveries.forEach(delivery => createGR(delivery, tenant2))
         //await createGR(deliveries, tenant)
 
         res.json('done')
@@ -327,39 +342,54 @@ const processDOs = async (req, res) => {
 
 const createGR = async (delivery, tenant) => {
     try {
-
+        let body = []
+        let comp = ''
         // const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
+        for (let line of delivery.documentLines) {
+            const process = await MasterDataProcesses.findOne({ orderId2: line.sourceDocId })
 
-        const process = await MasterDataProcesses.findOne({ orderId2: delivery.documentLines[0].sourceDocId })
+            if (!process) {
+                //throw ('SO NOT CREATED BY me')
+                continue
+            }
 
         if (!process) {
             throw ('Sales Order Not By Me')
         }
+            const order = await Order.findOne({ orderID: process.orderId1 })
 
-        const order = await Order.findOne({ orderID: process.orderId1 })
+            const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
 
-        const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
+            const order2 = tmp.data.filter(x => {
+                return x.sourceDocKey === order.doc
+            })
 
-        const order2 = tmp.data.filter(x => {
-            return x.sourceDocKey === order.doc
-        })
+            //TODO: LOG
 
-        //TODO: LOG
+            if (!order2.length) {
+                // throw ('NAO TENHO NADA PARA RECEBER')
+                continue
+            }
 
-        if (!order2.length)
-            throw ('NAO TENHO NADA PARA RECEBER')
+            //maybe construir o soucelin e quatity
+            order2.forEach(x => {
+                body.push({
+                    sourceDocKey: order.doc, "SourceDocLineNumber": x.sourceDocLineNumber,
+                    "quantity": x.quantity
+                })
+            })
 
-        //maybe construir o soucelin e quatity
+        }
 
-        const ans = await http('post', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}`, [{
-            sourceDocKey: order.doc, "SourceDocLineNumber": order2[0].sourceDocLineNumber,
-            "quantity": order2[0].quantity
-        }])
+        if (body.length || comp === '')
+            return
+
+        const ans = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/goodsreceipt/processOrders/${comp}`, body)
 
         //  await Order.updateOne({ _id: order._id }, { $set: { "processed": true } })
 
         await new Order({
-            tenant: order.tenant,
+            tenant: tenant,
             companyKey: order.companyKey,
             orderID: ans.data,
             processed: false,
@@ -429,9 +459,12 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         })
 
         let goods = [];
-        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem }));
+        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem, quantity: x.quantity, unit: x.unit, unitPrice: x.unitPrice }));
 
         const k = SO.create({
+            paymentMethod: order.paymentMethod,
+            discount: order.discount,
+            currency: order.currency,
             documentLines: goods,
             buyerCustomerParty: customer[0].partyKey,
             company: comp[0].companyKey
@@ -482,7 +515,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 }
 
 const processPos = async (req, res) => {
-    console.log("TEEEEEEEEEEEEEEEEEEEEEEST");
+
     const names = req.body.names
     const tenant = req.body.tenant
     const tenant2 = req.body.tenant2
@@ -522,7 +555,7 @@ const processPos = async (req, res) => {
 const getAllPOs = async (tenant, filter) => {
 
     try {
-        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders?`
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchases/orders`
 
         const tmpOrders = await http('get', url);
 
