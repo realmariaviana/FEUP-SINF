@@ -6,39 +6,39 @@ import Table from "components/Table/Table.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import Divider from "@material-ui/core/Divider";
+import Modal from '@material-ui/core/Modal';
+import CustomInput from "components/CustomInput/CustomInput.js";
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import CardFooter from "components/Card/CardFooter.js";
+import Button from "components/CustomButtons/Button.js";
 
-const styles = {
-  cardCategoryWhite: {
-    "&,& a,& a:hover,& a:focus": {
-      color: "rgba(255,255,255,.62)",
-      margin: "0",
-      fontSize: "14px",
-      marginTop: "0",
-      marginBottom: "0"
-    },
-    "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF"
-    }
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
+
+function getModalStyle() {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
+const useStyles = makeStyles(theme => ({
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
   },
-  cardTitleWhite: {
-    color: "#FFFFFF",
-    marginTop: "0px",
-    minHeight: "auto",
-    fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1"
-    }
-  }
-};
-
-const useStyles = makeStyles(styles);
+}));
 
 export default function MasterData() {
   const [data, setData] = useState([]);
@@ -54,18 +54,75 @@ export default function MasterData() {
   }, []);
 
   const classes = useStyles();
-  return (
+
+  const [modalStyle] = React.useState(getModalStyle);
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+    return (
+    <div>
+      <Button type="button" style={{backgroundColor:'green'}} onClick={handleOpen}>
+       + New Product
+      </Button>
+
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={open}
+        onClose={handleClose}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <h4 id="simple-modal-title">Create a New Product</h4>
+
+          <FormControl variant="outlined" className={classes.formControl} style={{paddingRight:'2rem'}}>
+            Organization
+            <Select
+              style={{width: 100}}
+            >
+              <MenuItem value={1}>SINFtech</MenuItem>
+              <MenuItem value={2}>SINFrent</MenuItem>
+            </Select>
+          </FormControl>
+
+          <CustomInput
+                    labelText="Product ID"
+                    id="id"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                  />
+          <CustomInput
+                    labelText="Product Name"
+                    id="name"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                  />
+
+            <CardFooter >
+              <Button  color="info">Save</Button>
+            </CardFooter>
+        </div>
+      </Modal>
+
     <GridContainer>
+
       <GridItem xs={12} sm={6} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
+            <p className={classes.cardCategoryWhite}>
              SINFtech Product Mapping
-            </h4>
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
+              tableHeaderColor="black"
               tableHead={["ID", "Description"]}
               tableData={[
                 ["22","Dakota Rice"],
@@ -80,18 +137,18 @@ export default function MasterData() {
         </Card>
         </GridItem>
 
-        <h1>	&#60; = &#62;</h1>
+        <h3>	&#60; = &#62;</h3>
 
         <GridItem xs={12} sm={6} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
+            <p className={classes.cardCategoryWhite}>
              SINFrent Product Mapping
-            </h4>
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
+              tableHeaderColor="black"
               tableHead={["ID" ,"Description"]}
               tableData={[
                 ["27","Niger"],
@@ -105,18 +162,21 @@ export default function MasterData() {
           </CardBody>
         </Card>
       </GridItem>
+      </GridContainer>
 
 
+
+      <GridContainer>
       <GridItem xs={12} sm={12} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
+            <p className={classes.cardCategoryWhite}>
              Company Mapping
-            </h4>
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
+              tableHeaderColor="black"
               tableHead={["Costumer ID", "Costumer Name"]}
               tableData={[
                 ["22","Dakota Rice"],
@@ -130,17 +190,17 @@ export default function MasterData() {
           </CardBody>
         </Card>
       </GridItem>
-      <h1>	&#60; = &#62;</h1>
+      <h3>	&#60; = &#62;</h3>
       <GridItem xs={12} sm={12} md={5}>
         <Card>
           <CardHeader color="info">
-            <h4 className={classes.cardCategoryWhite}>
+            <p className={classes.cardCategoryWhite}>
              Company Mapping
-            </h4>
+            </p>
           </CardHeader>
           <CardBody>
             <Table
-              tableHeaderColor="primary"
+              tableHeaderColor="black"
               tableHead={["Supplier ID", "Supplier Name"]}
               tableData={[
                 ["345" ,"Niger"],
@@ -155,5 +215,6 @@ export default function MasterData() {
         </Card>
       </GridItem>
     </GridContainer>
+    </div>
   );
 }

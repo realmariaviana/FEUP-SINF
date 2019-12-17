@@ -455,3 +455,7 @@ label {
 * {
   letter-spacing: normal !important;
 }
+
+.makeStyles-infoCardHeader-319:not(.makeStyles-cardHeaderIcon-315) {
+   background: #aaaaaa;
+}

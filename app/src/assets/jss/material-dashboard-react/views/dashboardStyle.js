@@ -43,11 +43,12 @@ const dashboardStyle = {
     marginBottom: "0"
   },
   cardCategoryWhite: {
-    color: "rgba(" + hexToRgb(whiteColor) + ",.62)",
+    color: "rgba(" + hexToRgb(whiteColor) + ",.40)",
     margin: "0",
-    fontSize: "14px",
+    fontSize: "18px",
     marginTop: "0",
-    marginBottom: "0"
+    marginBottom: "0",
+    fontWeight: "bold"
   },
   cardTitle: {
     color: grayColor[2],

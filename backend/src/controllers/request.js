@@ -79,56 +79,66 @@ const requestAccessToken = async () => {
 
 
 
-const createReceiptInvoice = (req, res) => {
+const getAllSIs = async (tenant, filter) => {
+
+    try {
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/billing/invoices`
+
+        const invoices = await http('get', url)
+
+        if (filter) {
+            return invoices.data.filter(x => {
+                return filter.contains(x.naturalKey)
+            })
+        } else {
+            return invoices.data.filter(x => {
+                return !x.isDeleted
+            })
+        }
+
+    } catch (e) {
+        const { response } = e
+        if (response.status === 401) {
+            await requestAccessToken()
+            return getAllSIs(tenant, filter)
+
+        } else {
+            console.log(response)
+        }
+    }
+}
 
 
+const processSI = async (req, res) => {
+
+    try {
+        const names = req.body.name
+        const tenant = req.body.tenant
+        let invoices;
+
+        if (names)
+            invoices = await getAllSIs(tenant, names)
+        else
+            invoices = await getAllSIs(tenant)
+
+
+        await invoices.forEach(invoice => createPI(invoice, tenant))
+
+        
+        res.json('done')
+
+    } catch (e) {
+        console.log(e)
+    }
 
 }
 
 
 
-const createSalesInvoice = (req, res) => {
+const createPI = async (invoice, tenant) => {
 
-    const tenant = req.body.tenant
-    const doc = req.body.doc
+    
 
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/billing/processOrders/1/1000`
-
-    http('get', url)
-        .then(sales => {
-            const sale = sales.data.filter(x => x.orderKey === doc)[0]
-
-            const body = [
-                {
-                    "deliveryKey": sale.deliveryKey,
-                    "deliveryLineNumber": sale.deliveryLineNumber,
-                    "orderKey": sale.orderKey,
-                    "orderLineNumber": sale.orderLineNumber,
-                    "quantity": sale.openQuantity
-                }
-            ]
-
-            http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/shipping/deliveries`)
-                .then(answer => {
-
-                    const deliveryOrder = answer.data.filter(x => x.documentLines[0].sourceDoc === doc)
-
-                    http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}billing/processOrders/${deliveryOrder[0].company}`, body)
-                        .then(an => res.json(an.data))
-                        .catch(err => console.log('oi'))
-                })
-                .catch(err => console.log(err))
-
-        }).catch(respo => {
-            const { response } = respo
-            if (response.status === 401) {
-                requestAccessToken()
-                    .then(() => createSalesInvoice(req, res))
-                    .catch(error => console.log(error))
-            } else {
-                console.log(response)
-            }
-        })
 
 }
 
@@ -146,34 +156,76 @@ const getAllDOs = async (tenant, filter) => {
             })
         }
         else
-            return deliveries.data
+            return deliveries.data.filter(x => {
+                return !x.isDeleted;
+            })
 
     } catch (e) {
         const { response } = e
         if (response.status === 401) {
-            requestAccessToken()
-                .then(() => getAllDOs(tenant, filter))
-                .catch(error => console.log(error))
+            await requestAccessToken()
+            return getAllDOs(tenant, filter)
+
         } else {
             console.log(response)
         }
     }
 }
 
-const createGR = async (delivery) => {
+const processDOs = async (req, res) => {
     try {
+        const names = req.body.name
+        const tenant = req.body.tenant
+        let deliveries;
+
+        if (names)
+            deliveries = await getAllDOs(tenant, names)
+        else
+            deliveries = await getAllDOs(tenant)
+
+
+        await deliveries.forEach(delivery => createGR(delivery, tenant))
+        //await createGR(deliveries, tenant)
+
+        res.json('done')
+
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+const createGR = async (delivery, tenant) => {
+    try {
+
         // const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
 
         const process = await MasterDataProcesses.findOne({ orderId2: delivery.documentLines[0].sourceDocId })
 
+        if (!process) {
+            throw ('SO NOT CREATED BY me')
+        }
+
         const order = await Order.findOne({ orderID: process.orderId1 })
 
+        const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
+
+        const order2 = tmp.data.filter(x => {
+            return x.sourceDocKey === order.doc
+        })
+
+        //TODO: LOG
+
+        if (!order2.length)
+            throw ('NAO TENHO NADA PARA RECEBER')
+
+        //maybe construir o soucelin e quatity
+
         const ans = await http('post', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsreceipt/processOrders/${order.companyKey}`, [{
-            sourceDocKey: order.doc, "SourceDocLineNumber": 1,
-            "quantity": 1
+            sourceDocKey: order.doc, "SourceDocLineNumber": order2[0].sourceDocLineNumber,
+            "quantity": order2[0].quantity
         }])
 
-        Order.update({ _id: order._id }, { $set: { "processed": true } })
+        //  await Order.updateOne({ _id: order._id }, { $set: { "processed": true } })
 
         await new Order({
             tenant: order.tenant,
@@ -183,6 +235,7 @@ const createGR = async (delivery) => {
             typeOrder: 'GR'
         }).save()
 
+        console.log("GR INSERTED " + ans.data)
 
         await new Order({
             doc: delivery.documentLines[0].sourceDoc,
@@ -193,11 +246,15 @@ const createGR = async (delivery) => {
             typeOrder: 'DO'
         }).save()
 
+        console.log("DO INSERTED " + delivery.id)
+
         await new MasterDataProcesses({
             orderId1: delivery.id,
             orderId2: ans.data
         }).save()
 
+        console.log("process INSERTED ")
+
     } catch (e) {
 
         console.log(e)
@@ -206,39 +263,27 @@ const createGR = async (delivery) => {
 
 }
 
-const processDOs = async (req, res) => {
-    try {
-        const names = req.body.name
-        const tenant = req.body.tenant
-        let deliveries;
 
-        if (names)
-            deliveries = getAllDOs(tenant, names)
-        else
-            deliveries = getAllDOs(tenant)
 
-       await deliveries.forEach(delivery => createGR(delivery))
-
-        res.json('done')
-        // Promise.all(prom)
-    } catch (e) {
-        console.log(e)
-    }
-}
-
-const createSalesOrder = async (order, tenant1) => {
+const createSalesOrder = async (order, tenant1, tenant2) => {
 
     try {
 
-        const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
+        const tenant = tenant1
+        //const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
 
         const customers = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/businesscore/parties`)
 
         const customer = customers.data.filter(elem => {
+
             return order.companyDescription === elem.name
         })
 
-        const ans = http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`)
+        if (!customer.length)
+            throw ('there are no customer') /// TRHOW LOG NAO HÁ CUSTOMERS
+
+
+        const ans = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`)
 
         const comp = ans.data.filter(company => {
 
@@ -257,11 +302,10 @@ const createSalesOrder = async (order, tenant1) => {
 
         })
 
-        const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
 
         await new Order({
             doc: order.naturalKey,
-            tenant: tenant,
+            tenant: tenant2,
             companyKey: order.company,
             orderID: order.id,
             typeOrder: 'PO'
@@ -269,8 +313,11 @@ const createSalesOrder = async (order, tenant1) => {
 
         console.log('inserted PO with ' + order.id)
 
+        const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
+
+
         await new Order({
-            tenant: tenant2,
+            tenant: tenant,
             companyKey: k.company,
             orderID: ans2.data,
             typeOrder: 'SO'
@@ -285,7 +332,10 @@ const createSalesOrder = async (order, tenant1) => {
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
 
     } catch (e) {
-        console.log(e)
+        // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
+        // E DAR LOG DELES
+
+        // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"
     }
 
 }
@@ -294,20 +344,23 @@ const createSalesOrder = async (order, tenant1) => {
 const processPos = async (req, res) => {
     const names = req.body.names
     const tenant = req.body.tenant
+    const tenant2 = req.body.tenant2
 
     let orders;
+    try {
+        if (names)
+            orders = await getAllPOs(tenant, names)
+        else
+            orders = await getAllPOs(tenant)
 
-    if (names)
-        orders = getAllPOs(tenant, names)
-    else
-        orders = getAllPOs(tenant)
+        orders.forEach(order => createSalesOrder(order, tenant2, tenant))
 
+        res.status(200).json('done')
 
-   await orders.forEach(order => createSalesOrder(order, tenant))
-
-    res.json('done')
+    } catch (e) {
+        console.log(e)
+    }
 }
-
 const getAllPOs = async (tenant, filter) => {
 
     try {
@@ -315,26 +368,27 @@ const getAllPOs = async (tenant, filter) => {
 
         const tmpOrders = await http('get', url);
 
-        if (filter) {
 
-            return tmpOrders.data.filter(order => {
+        if (filter) {
+            return await tmpOrders.data.filter(async order => {
                 return filter.contains(order.naturalKey)
             })
         }
         else {
-            return tmpOrders.data.filter(order => {
-                return /ECF.*/.test(order.naturalKey) && !order.isDeleted
-            })
-        }
+            return await tmpOrders.data.filter((order) => {
 
+                return (/ECF.*/.test(order.naturalKey) && !order.isDeleted)
+            })
+
+        }
     } catch (e) {
         const { response } = e
         if (response.status === 401) {
-            requestAccessToken()
-                .then(() => getAllPOs(tenant, filter))
-                .catch(error => console.log(error))
+            await requestAccessToken()
+            return getAllPOs(tenant, filter)
+
         } else {
-            console.log(response)
+            console.log('mummy')
         }
     }
 

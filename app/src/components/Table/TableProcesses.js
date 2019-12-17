@@ -111,7 +111,8 @@ TableProcesses.propTypes = {
     "success",
     "info",
     "rose",
-    "gray"
+    "gray",
+    "black"
   ]),
   tableHead: PropTypes.arrayOf(PropTypes.string),
   tableData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string))
