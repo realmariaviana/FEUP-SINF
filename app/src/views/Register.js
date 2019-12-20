@@ -10,6 +10,7 @@ const Register = () => {
         description: ''
     });
 
+    const xd = (event) => console.log("oi");
 
     return (
         <div className="container">
@@ -23,7 +24,8 @@ const Register = () => {
                                 name="username"
                                 placeholder="Enter Username"
                                 value={inputs.username}
-                                required />
+                                required
+                                onChange={xd} />
                         </div>
                         <div>
                             <label htmlFor="email"></label>
