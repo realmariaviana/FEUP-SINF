@@ -22,7 +22,7 @@ const Register = () => {
                             <input type="text"
                                 name="username"
                                 placeholder="Enter Username"
-                                value={inputs.username}
+                               
                                 required />
                         </div>
                         <div>
@@ -30,7 +30,7 @@ const Register = () => {
                             <input type="email"
                                 name="email"
                                 placeholder="Enter Email"
-                                value={inputs.email}
+                               
                                 required />
 
                         </div>
@@ -39,13 +39,12 @@ const Register = () => {
                             <input type="password"
                                 name="password"
                                 placeholder="Enter Password"
-                                value={inputs.password}
                                 required />
                            
                             <input type="password"
                                 name="password"
                                 placeholder="Repeat Password"
-                                value={inputs.password}
+                                
                                 required />
                          
                         </div>

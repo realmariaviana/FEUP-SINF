@@ -20,7 +20,7 @@ const Login = () => {
                             <input type="email"
                                 name="email"
                                 placeholder="Enter Email"
-                                value={inputs.email}
+                                
                                 required />
                         </div>
                         <div>
@@ -28,7 +28,7 @@ const Login = () => {
                             <input type="password"
                                 name="password"
                                 placeholder="Enter Password"
-                                value={inputs.password}
+                               
                                 required />
                         </div>
                         <button type="submit">
