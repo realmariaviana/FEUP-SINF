@@ -34,7 +34,7 @@ const dashboardRoutes = [
     icon: LibraryBooks,
     component: Logs,
     layout: "/admin"
-  },
+  }
 ];
 
 export default dashboardRoutes;

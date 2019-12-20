@@ -8,29 +8,8 @@ const Order = require('../models/order')
 const SO = require('../processes/SalesOrder')
 const Invoice = require('../processes/Invoice')
 const Receive = require('../processes/Receive')
-const { saveLog } = require('./logsController');
+const {saveLog} = require('./logsController');
 
-
-const init = (req, res) => {
-    console.log(req.headers)
-
-    setInterval(processPOs(req.headers.tenant2, req.headers.tenant), 10000);
-    setInterval(processDOs(req.headers.tenant2, req.headers.tenant), 10000);
-    setInterval(processSI(req.headers.tenant2, req.headers.tenant), 10000);
-    setInterval(processP(req.headers.tenant2, req.headers.tenant), 10000);
-    res.status(200).json('oi')
-}
-
-const init2 = (req, res) => {
-    console.log(req.headers)
-
-    setInterval(processPOs(req.headers.tenant, req.headers.tenant2), 10000);
-    setInterval(processDOs(req.headers.tenant, req.headers.tenant2), 10000);
-    setInterval(processSI(req.headers.tenant, req.headers.tenant2), 10000);
-    setInterval(processP(req.headers.tenant, req.headers.tenant2), 10000);
-    res.status(200).json('oi')
-
-}
 
 
 const getBodyData = (formObj) => {
@@ -127,22 +106,24 @@ const getAllPs = async (tenant, filter) => {
 }
 
 
-function processP(req, res) {
+const processP = async (req, res) => {
+
     try {
         const names = req.body.name
-        const tenant = req
-        const tenant2 = res
+        const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
 
         let payments;
 
         if (names)
-            payments = getAllPs(tenant, names)
+            payments = await getAllPs(tenant, names)
         else
-            payments = getAllPs(tenant)
+            payments = await getAllPs(tenant)
 
 
-        payments.forEach(payment => createP(payment, tenant2))
+        await payments.forEach(payment => createP(payment, tenant2))
 
+        res.json('done')
 
     } catch (e) {
         console.log(e)
@@ -165,7 +146,7 @@ const createP = async (payment, tenant) => {
             const vfa = await Order.findOne({ orderID: lol.sourceDocId })
 
             if (!vfa) {
-                throw ('No Order found')
+                throw ('gay')
             }
 
             const process = await MasterDataProcesses.findOne({ orderId2: vfa.orderID })
@@ -182,12 +163,8 @@ const createP = async (payment, tenant) => {
         const kapa = await http('post', urlCreate(fa), array)
 
 
-        saveLog("SUCCESS: Created Payment", fa.companyKey);
-
     } catch (e) {
-        if('No Order found'){
-            saveLog("ERROR: creating payment. Order not found", fa.companyKey);
-        }
+        console.log(e)
     }
 
 }
@@ -222,22 +199,22 @@ const getAllSIs = async (tenant, filter) => {
 }
 
 
-function processSI(req, res) {
+const processSI = async (req, res) => {
 
     try {
         const names = req.body.name
-        const tenant = req
-        const tenant2 = res
+        const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
 
         let invoices;
 
         if (names)
-            invoices = getAllSIs(tenant, names)
+            invoices = await getAllSIs(tenant, names)
         else
-            invoices = getAllSIs(tenant)
+            invoices = await getAllSIs(tenant)
 
 
-        invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
+        await invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
 
         res.json('done')
 
@@ -338,24 +315,23 @@ const getAllDOs = async (tenant, filter) => {
     }
 }
 
-
-function processDOs(req, res) {
+const processDOs = async (req, res) => {
     try {
         const names = req.body.name
-        const tenant = req
-        const tenant2 = res
+        const tenant = req.body.tenant
+        const tenant2 = req.body.tenant2
         let deliveries;
 
         if (names)
-            deliveries = getAllDOs(tenant, names)
+            deliveries = await getAllDOs(tenant, names)
         else
-            deliveries = getAllDOs(tenant)
+            deliveries = await getAllDOs(tenant)
 
 
-        deliveries.forEach(delivery => createGR(delivery, tenant2))
+        await deliveries.forEach(delivery => createGR(delivery, tenant2))
         //await createGR(deliveries, tenant)
 
-
+        res.json('done')
 
     } catch (e) {
         console.log(e)
@@ -375,9 +351,6 @@ const createGR = async (delivery, tenant) => {
                 continue
             }
 
-        if (!process) {
-            throw ('Sales Order Not By Me')
-        }
             const order = await Order.findOne({ orderID: process.orderId1 })
 
             const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
@@ -440,10 +413,6 @@ const createGR = async (delivery, tenant) => {
 
     } catch (e) {
 
-        if(e === 'Sales Order Not By Me'){
-            saveLog( "ERROR: creating Goods Receipt. Sales Order not created by company", "Company");
-        }
-
         console.log(e)
 
     }
@@ -456,12 +425,11 @@ const createGR = async (delivery, tenant) => {
 const createSalesOrder = async (order, tenant1, tenant2) => {
 
     try {
-        console.log(order.naturalKey + " " + order.id)
+            console.log(order.naturalKey + " " + order.id) 
 
         const tenant = tenant1
         //const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
 
-        console.log("inside create sales order");
         const customers = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/businesscore/parties`)
 
         const customer = customers.data.filter(elem => {
@@ -471,6 +439,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         if (!customer.length)
             throw ('there are no customer') /// TRHOW LOG NAO HÁ CUSTOMERS
+
 
         const ans = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`)
 
@@ -502,11 +471,9 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
             typeOrder: 'PO'
         }).save()
 
-        console.log('Inserted PO with ' + order.id)
+        console.log('inserted PO with ' + order.id)
 
         const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
-        
-        saveLog("SUCCESS: Create Sales Order", k.company);
 
         await new Order({
             tenant: tenant,
@@ -524,11 +491,8 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
 
     } catch (e) {
+console.log(e)
 
-        if(e === "there are no costumer"){
-            saveLog("ERROR: creating Sales Order. There are no costumer", k.company);
-        }
-        
         // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
         // E DAR LOG DELES
 
@@ -537,38 +501,22 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
 }
 
-function processPos(req, res) {
+const processPos = async (req, res) => {
 
     const names = req.body.names
-    const tenant = req
-    const tenant2 = res
+    const tenant = req.body.tenant
+    const tenant2 = req.body.tenant2
 
     let orders;
     try {
-        if (names){
-            console.log("get POs names");
+        if (names)
             orders = await getAllPOs(tenant, names)
-        }
-        else{
+        else
             orders = await getAllPOs(tenant)
-        }
 
-        console.log("orders");
-        console.log(orders.length);
+        orders.forEach(order => createSalesOrder(order, tenant2, tenant))
 
-        let tempOrders = []
-
-        for (let i = 0; i < orders.length; i++) {
-            if(names.includes(orders[i].naturalKey)){
-                tempOrders.push(orders[i]);
-            }
-        }
-        console.log("tempOrders.length");
-        console.log(tempOrders.length);
-
-        tempOrders.forEach(order => createSalesOrder(order, tenant2, tenant))
-
-
+        res.status(200).json('done')
 
     } catch (e) {
         console.log(e)
@@ -583,10 +531,7 @@ const getAllPOs = async (tenant, filter) => {
         const tmpOrders = await http('get', url);
 
         if (filter) {
-            console.log("in if");
             return await tmpOrders.data.filter(async order => {
-                console.log(filter);
-                console.log(filter.includes(order.naturalKey));
                 return filter.includes(order.naturalKey)
             })
         }
@@ -615,8 +560,6 @@ module.exports = {
     processPos,
     processDOs,
     processSI,
-    processP,
-    init,
-    init2
+    processP, 
 
 }

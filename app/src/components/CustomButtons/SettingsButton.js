@@ -73,41 +73,9 @@ export default function SettingsButton(props) {
     fetch('/api/companies/company', myInit)
       .then(response => response.json())
       .then(data => {
-        fetch('/api/users/start', {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            tenant2: tenant,
-            tenant: tenant2
-          },
-          mode: 'cors',
-          cache: 'default',
-          body: {
-            tenant: tenant,
-            tenant2: tenant2
-          }
-        }).then()
-          .then()
-
-          fetch('/api/users/start2', {
-            method: 'POST',
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              tenant2: tenant,
-              tenant: tenant2
-            },
-            mode: 'cors',
-            cache: 'default',
-          
-          }).then()
-            .then()
         console.log("Data received from /api/companies/company");
         console.log(data)
-
       })
-
 
   }
 
