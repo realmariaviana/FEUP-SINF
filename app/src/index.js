@@ -15,7 +15,7 @@ ReactDOM.render(
   <Router history={hist}>
     <Switch>
       <Route path="/admin" component={Admin} />
-      {/* <Redirect from="/" to="/auth" /> */}
+      { <Redirect from="/" to="/auth" /> }
       <Route exact path="/auth" render={() => (<Authentication />)} />
     </Switch>
   </Router>,
