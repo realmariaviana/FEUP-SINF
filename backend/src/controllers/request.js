@@ -8,7 +8,7 @@ const Order = require('../models/order')
 const SO = require('../processes/SalesOrder')
 const Invoice = require('../processes/Invoice')
 const Receive = require('../processes/Receive')
-const {saveLog} = require('./logsController');
+const { saveLog } = require('./logsController');
 
 
 
@@ -106,28 +106,34 @@ const getAllPs = async (tenant, filter) => {
     }
 }
 
+const frontCallP = (req, res) => {
+    try {
+        processP(req.tenant, req.names)
+        res.status(200).json('ok')
+    } catch (e) {
+        res.status(400).json(e.response)
+    }
+}
 
-const processP = async (req, res) => {
+const processP = async (ten, names) => {
 
     try {
-        const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+        const tenant2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
 
         let payments;
 
         if (names)
-            payments = await getAllPs(tenant, names)
+            payments = await getAllPs(ten, names)
         else
-            payments = await getAllPs(tenant)
+            payments = await getAllPs(ten)
 
 
         await payments.forEach(payment => createP(payment, tenant2))
 
-        res.json('done')
+    
 
     } catch (e) {
-        console.log(e)
+       throw e
     }
 
 }
@@ -200,12 +206,20 @@ const getAllSIs = async (tenant, filter) => {
 }
 
 
-const processSI = async (req, res) => {
+const frontCallSis = (req, res) => {
+    try {
+        processSI(req.tenant, req.names)
+        res.status(200).json('ok')
+    } catch (e) {
+        res.status(400).json('bad')
+    }
+}
+
+const processSI = async (tenant, names) => {
 
     try {
-        const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+
+        const tenant2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
 
         let invoices;
 
@@ -217,10 +231,8 @@ const processSI = async (req, res) => {
 
         await invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
 
-        res.json('done')
-
     } catch (e) {
-        console.log(e)
+        throw e
     }
 
 }
@@ -316,11 +328,25 @@ const getAllDOs = async (tenant, filter) => {
     }
 }
 
-const processDOs = async (req, res) => {
+
+const frontCallDos = (req, res) => {
+
     try {
-        const names = req.body.name
-        const tenant = req.body.tenant
-        const tenant2 = req.body.tenant2
+        processDos(req.tenant, req.names)
+
+        res.status(200).json('ok')
+
+    } catch (e) {
+        res.status(400).json(e.response)
+    }
+}
+
+
+const processDOs = async (tenant, names) => {
+    try {
+
+        const tenant2 = global['tenant1'] === tenant ? global['tenant2'] : global['tenant1']
+
         let deliveries;
 
         if (names)
@@ -332,10 +358,9 @@ const processDOs = async (req, res) => {
         await deliveries.forEach(delivery => createGR(delivery, tenant2))
         //await createGR(deliveries, tenant)
 
-        res.json('done')
 
     } catch (e) {
-        console.log(e)
+        throw e
     }
 }
 
@@ -428,7 +453,7 @@ const createGR = async (delivery, tenant) => {
 const createSalesOrder = async (order, tenant1, tenant2) => {
 
     try {
-            console.log(order.naturalKey + " " + order.id) 
+        console.log(order.naturalKey + " " + order.id)
 
         const tenant = tenant1
         //const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
@@ -440,8 +465,8 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
             return order.companyDescription === elem.name
         })
 
-        if (!customer.length){
-            saveLog("Error: No customer found" , order.company);
+        if (!customer.length) {
+            saveLog("Error: No customer found", order.company);
             throw ('there are no customer') /// TRHOW LOG NAO HÁ CUSTOMERS
         }
 
@@ -500,7 +525,7 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
     } catch (e) {
         console.log(e)
-        
+
 
         // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
         // E DAR LOG DELES
@@ -513,25 +538,31 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
 }
 
-const processPos = async (req, res) => {
+const frontCallPos = (req, res) => {
+    try {
+        processPos(req.tenant, req.names)
+        res.status(200).json('ok')
+    } catch (e) {
+        res.status(400).json(e.response)
 
-    const names = req.body.names
-    const tenant = req.body.tenant
-    const tenant2 = req.body.tenant2
+    }
+}
+
+const processPos = async (ten, names) => {
+
+    const tenant2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
 
     let orders;
     try {
         if (names)
-            orders = await getAllPOs(tenant, names)
+            orders = await getAllPOs(ten, names)
         else
-            orders = await getAllPOs(tenant)
+            orders = await getAllPOs(ten)
 
-        orders.forEach(order => createSalesOrder(order, tenant2, tenant))
-
-        res.status(200).json('done')
+        orders.forEach(order => createSalesOrder(order, tenant2, ten))
 
     } catch (e) {
-        console.log(e)
+        throw e
     }
 }
 
@@ -572,6 +603,10 @@ module.exports = {
     processPos,
     processDOs,
     processSI,
-    processP, 
+    processP,
+    frontCallDos,
+    frontCallP,
+    frontCallPos,
+    frontCallSis
 
 }
