@@ -53,11 +53,11 @@ const saveTenantOrganization = (req, res) => {
     const organization = req.headers.organization;
     const organization2 = req.headers.organization2;
 
-    console.log(tenant);
-    console.log(tenant2);
-    console.log(organization);
-    console.log(organization2);
-
+    global['tenant1'] = tenant1
+    global['tenant2'] = tenant2
+    global['org1'] = organization
+    global['org2'] = organization2
+    
     const url = `https://my.jasminsoftware.com/api/${tenant}/${organization}/corepatterns/companies`;
     const url2 = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/corepatterns/companies`;
 

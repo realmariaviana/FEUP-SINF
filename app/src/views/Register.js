@@ -1,64 +1,94 @@
 import React, { useState } from 'react'
 import './Register.css';
 
-const Register = () => { 
+const Register = () => {
 
-    const [inputs] = useState({
-        username:'',
-        email:'',
-        password:'',
-        description: ''
+    const [inputs, setInputs] = useState({
+        username: '',
+        email: '',
+        password: ''
     });
 
-    const xd = (event) => console.log("oi");
+    const setUsername = (event) => {
 
-    return (
-        <div className="container">
-            <div className="row">
-                <div className="corfundo">
-                    <form>
-                        <h1>Register</h1>
-                        <div>
-                            <label htmlFor="username"></label>
-                            <input type="text"
-                                name="username"
-                                placeholder="Enter Username"
-                                value={inputs.username}
-                                required
-                                onChange={xd} />
-                        </div>
-                        <div>
-                            <label htmlFor="email"></label>
-                            <input type="email"
-                                name="email"
-                                placeholder="Enter Email"
-                                value={inputs.email}
-                                required />
+        event.preventDefault();
 
-                        </div>
-                        <div>
-                            <label htmlFor="password"></label>
-                            <input type="password"
-                                name="password"
-                                placeholder="Enter Password"
-                                value={inputs.password}
-                                required />
-                           
-                            <input type="password"
-                                name="password"
-                                placeholder="Repeat Password"
-                                value={inputs.password}
-                                required />
-                         
-                        </div>
-                        <button type="submit">
-                            Register
+        setInputs({
+            username: event.target.value,
+            email: inputs.email,
+            password: inputs.password
+        })
+    }
+
+    const setEmail = (event) => {
+
+        event.preventDefault();
+
+        setInputs({
+            username: inputs.username,
+            email: event.target.value,
+            password: inputs.password
+        })
+    }
+    const setPass = (event) => {
+
+        event.preventDefault();
+
+        setInputs({
+            username: inputs.username,
+            email: inputs.email,
+            password: event.target.value
+        })
+    }
+
+    const submit = (event) =>{
+
+        //create User
+        
+    }
+    
+return (
+    <div className="container">
+        <div className="row">
+            <div className="corfundo">
+                <form>
+                    <h1>Register</h1>
+                    <div>
+                        <label htmlFor="username"></label>
+                        <input type="text"
+                            name="username"
+                            placeholder="Enter Username"
+                            value={inputs.username}
+                            required
+                            onChange={setUsername} />
+                    </div>
+                    <div>
+                        <label htmlFor="email"></label>
+                        <input type="email"
+                            name="email"
+                            placeholder="Enter Email"
+                            onChange={setEmail} 
+                            required />
+
+                    </div>
+                    <div>
+                        <label htmlFor="password"></label>
+                        <input type="password"
+                            name="password"
+                            value={inputs.password}
+                            onChange={setPass} 
+                            placeholder="Enter Password"
+                            required />
+
+                    </div>
+                    <button type="submit">
+                        Register
                         </button>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
-    )
+    </div>
+)
 }
 
 export default Register;

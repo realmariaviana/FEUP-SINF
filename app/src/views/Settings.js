@@ -31,6 +31,7 @@ export default function Settings() {
   const [organization, setOrganization] = useState("");
   const [organization2, setOrganization2] = useState("");
 
+
   const classes = useStyles();
   return (
     <div>
@@ -88,6 +89,7 @@ export default function Settings() {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    value={tenant}
                     updateLocalState={(o2) => setOrganization2(o2)}
                   />
                 </GridItem>
