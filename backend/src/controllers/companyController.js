@@ -2,8 +2,7 @@
 
 const axios = require('axios');
 const Company = require('../models/company');
-const Order = require('../models/order');
-const Log = require('../models/logs');
+const controllRequest = require('./request')
 const MapProduct = require('../models/MapProduct');
 const {http, requestAccessToken} = require('./request');
 
@@ -97,12 +96,23 @@ const saveTenantOrganization = (req, res) => {
     global["organization1"] = req.headers.organization;
     global["organization2"] = req.headers.organization2; */
 
+    setTimers();
     console.log("Received and saved in global <tenant1> and <tenant2>: " + req.headers.tenant + ", " + req.headers.tenant2);
     console.log("Received and saved in global <organization1> and <organization2>: " + req.headers.organization + ", " + req.headers.organization2);
 
     //res.send({ message: "Saved tenants and organizations successfully"});
 
 }
+
+
+
+// function setTimers(){
+
+//     setInterval(controllRequest.frontCallPos, 15000)
+
+// }
+
+
 
 const saveTenantOrganizationDB = (tenant, organization, tenant2, organization2, company_name, company_name2) => {
     let company = new  Company({numComp: 1, tenant: tenant, organization: organization, compName: company_name});
