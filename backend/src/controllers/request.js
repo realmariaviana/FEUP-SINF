@@ -405,11 +405,7 @@ const createGR = async (delivery, ten, ten2) => {
                 // throw ('NAO TENHO NADA PARA RECEBER')
                 continue
             }
-<<<<<<< HEAD
             //maybe construir o soucelin e quatity // price
-=======
-
->>>>>>> 2ce0edc553990aeb60f124e2e5f4939c852c66ab
             order2.forEach(x => {
                
                 body.push({
@@ -451,12 +447,7 @@ const createGR = async (delivery, ten, ten2) => {
         }).save()
 
         console.log("GR INSERTED " + ans.data)
-<<<<<<< HEAD
         saveLog("Success: GR inserted with ID: "+ ans.data, ten2);
-=======
-        saveLog("GR inserted", comp);
-
->>>>>>> 2ce0edc553990aeb60f124e2e5f4939c852c66ab
 
         await new Order({
             doc: delivery.naturalKey,
