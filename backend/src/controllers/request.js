@@ -72,7 +72,7 @@ const requestAccessToken = async () => {
 
     } catch (err) {
         console.log(err)
-        saveLog(err, "GENERAL");
+        saveLog("Error: Requesting AcessToken", "GENERAL");
     }
 }
 
@@ -102,6 +102,7 @@ const getAllPs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting all the payments", tenant);
         }
     }
 }
@@ -169,9 +170,14 @@ const createP = async (payment, tenant) => {
 
         const kapa = await http('post', urlCreate(fa), array)
 
+        saveLog("Success: Created Payment for orderID: " + process.orderId1, tenant);
+
 
     } catch (e) {
-        saveLog("No vfa");
+        if(e=='no vfa')
+            saveLog("Error: No VFA" , tenant);
+        else
+            saveLog("Error: Creating Payment", tenant);
     }
 
 }
@@ -201,6 +207,7 @@ const getAllSIs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting invoices", tenant);
         }
     }
 }
@@ -267,7 +274,7 @@ const createPI = async (invoice, tenant2, tenant) => {
         const body = Invoice.create(invoice, company.companyKey, supplier.partyKey)
 
         const id = await http('post', urlCreate, body)
-        console.log(id)
+        saveLog("Success: Created Invoice", tenant);
 
         await new Order({
             doc: invoice.naturalKey,
@@ -277,7 +284,7 @@ const createPI = async (invoice, tenant2, tenant) => {
             typeOrder: invoice.documentType
         }).save()
 
-        saveLog("FA created with order ID" + orderID, companyKey);
+        saveLog("FA created with order ID" + orderID, tenant);
 
         await new Order({
             tenant: tenant,
@@ -285,7 +292,7 @@ const createPI = async (invoice, tenant2, tenant) => {
             orderID: id.data,
             typeOrder: 'VFA'
         }).save()
-        saveLog("VFA created with order ID" + orderID, companyKey);
+        saveLog("VFA created with order ID" + orderID, tenant);
 
         await new MasterDataProcesses({
             orderId1: invoice.id,
@@ -294,7 +301,7 @@ const createPI = async (invoice, tenant2, tenant) => {
         console.log('MP')
         //// GUARDA NA BASE DE DADOS
     } catch (e) {
-        //console.log(e)
+        saveLog("Error: " + e, tenant);
     }
 }
 
@@ -324,6 +331,7 @@ const getAllDOs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting deliveries", tenant);
         }
     }
 }
@@ -394,7 +402,6 @@ const createGR = async (delivery, ten, ten2) => {
                 // throw ('NAO TENHO NADA PARA RECEBER')
                 continue
             }
-            console.log('before build body')
             //maybe construir o soucelin e quatity // price
             order2.forEach(x => {
                 body.push({
@@ -411,6 +418,8 @@ const createGR = async (delivery, ten, ten2) => {
         console.log('before sent')
         const ans = await http('post', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/goodsreceipt/processOrders/${comp}`, body)
 
+
+
         //  await Order.updateOne({ _id: order._id }, { $set: { "processed": true } })
 
         await new Order({
@@ -422,7 +431,7 @@ const createGR = async (delivery, ten, ten2) => {
         }).save()
 
         console.log("GR INSERTED " + ans.data)
-        saveLog("GR inserted", order.companyKey);
+        saveLog("Success: GR inserted with ID: "+ ans.data, ten2);
 
         await new Order({
             doc: delivery.documentLines[0].sourceDoc,
@@ -434,7 +443,7 @@ const createGR = async (delivery, ten, ten2) => {
         }).save()
 
         console.log("DO INSERTED " + delivery.id)
-        saveLog("DO inserted", delivery.company);
+        saveLog("Success: DO inserted with ID: " + delivery.id, ten);
 
         await new MasterDataProcesses({
             orderId1: delivery.id,
@@ -467,7 +476,6 @@ const createSalesOrder = async (order, ten1, ten2) => {
         })
 
         if (!customer.length) {
-            saveLog("Error: No customer found", order.company);
             throw ('there are no customer') /// TRHOW LOG NAO HÁ CUSTOMERS
         }
 
@@ -503,7 +511,7 @@ const createSalesOrder = async (order, ten1, ten2) => {
         }).save()
 
         console.log('inserted PO with ' + order.id)
-        saveLog("Success: Inserted PO with id: " + order.id, order.company);
+        saveLog("Success: Inserted PO with id: " + order.id, ten1);
 
         const ans2 = await http('post', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/sales/orders`, k)
 
@@ -515,26 +523,18 @@ const createSalesOrder = async (order, ten1, ten2) => {
         }).save()
 
         console.log('inserted SO with ' + ans.data)
-        saveLog("Success: Inserted SO with id: " + ans2.data);
+        saveLog("Success: Inserted SO with id: " + ans2.data, ten2);
 
         await new MasterDataProcesses({
             orderId1: order.id,
             orderId2: ans2.data
         }).save()
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
-        saveLog("Success: Inserted process in database PO: " + order.id + " and SO: " + ans2.data);
 
     } catch (e) {
         console.log(e)
 
 
-        // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
-        // E DAR LOG DELES
-
-        // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"// DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
-        // E DAR LOG DELES
-
-        // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"
     }
 
 }
@@ -593,7 +593,7 @@ const getAllPOs = async (tenant, filter) => {
             return getAllPOs(tenant, filter)
 
         } else {
-            console.log('mummy')
+            saveLog("Error: Getting orders", tenant);
         }
     }
 
