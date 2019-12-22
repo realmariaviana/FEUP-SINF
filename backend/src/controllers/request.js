@@ -72,7 +72,7 @@ const requestAccessToken = async () => {
 
     } catch (err) {
         console.log(err)
-        saveLog(err, "GENERAL");
+        saveLog("Error: Requesting AcessToken", "GENERAL");
     }
 }
 
@@ -102,6 +102,7 @@ const getAllPs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting all the payments", tenant);
         }
     }
 }
@@ -130,10 +131,10 @@ const processP = async (ten, names) => {
 
         await payments.forEach(payment => createP(payment, tenant2))
 
-    
+
 
     } catch (e) {
-       throw e
+        throw e
     }
 
 }
@@ -169,9 +170,14 @@ const createP = async (payment, tenant) => {
 
         const kapa = await http('post', urlCreate(fa), array)
 
+        saveLog("Success: Created Payment for orderID: " + process.orderId1, tenant);
+
 
     } catch (e) {
-        saveLog("No vfa");
+        if(e=='no vfa')
+            saveLog("Error: No VFA" , tenant);
+        else
+            saveLog("Error: Creating Payment", tenant);
     }
 
 }
@@ -201,6 +207,7 @@ const getAllSIs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting invoices", tenant);
         }
     }
 }
@@ -267,7 +274,7 @@ const createPI = async (invoice, tenant2, tenant) => {
         const body = Invoice.create(invoice, company.companyKey, supplier.partyKey)
 
         const id = await http('post', urlCreate, body)
-        console.log(id)
+        saveLog("Success: Created Invoice", tenant);
 
         await new Order({
             doc: invoice.naturalKey,
@@ -277,7 +284,7 @@ const createPI = async (invoice, tenant2, tenant) => {
             typeOrder: invoice.documentType
         }).save()
 
-        saveLog("FA created with order ID" + orderID, companyKey);
+        saveLog("FA created with order ID" + orderID, tenant);
 
         await new Order({
             tenant: tenant,
@@ -285,7 +292,7 @@ const createPI = async (invoice, tenant2, tenant) => {
             orderID: id.data,
             typeOrder: 'VFA'
         }).save()
-        saveLog("VFA created with order ID" + orderID, companyKey);
+        saveLog("VFA created with order ID" + orderID, tenant);
 
         await new MasterDataProcesses({
             orderId1: invoice.id,
@@ -294,7 +301,7 @@ const createPI = async (invoice, tenant2, tenant) => {
         console.log('MP')
         //// GUARDA NA BASE DE DADOS
     } catch (e) {
-        //console.log(e)
+        saveLog("Error: " + e, tenant);
     }
 }
 
@@ -324,6 +331,7 @@ const getAllDOs = async (tenant, filter) => {
 
         } else {
             console.log(response)
+            saveLog("Error: Getting deliveries", tenant);
         }
     }
 }
@@ -354,25 +362,25 @@ const processDOs = async (tenant, names) => {
         else
             deliveries = await getAllDOs(tenant)
 
-
-        await deliveries.forEach(delivery => createGR(delivery, tenant2))
-        //await createGR(deliveries, tenant)
+        await deliveries.forEach(delivery => createGR(delivery, tenant, tenant2))
 
 
     } catch (e) {
-        throw e
+        console.log(e)
+        // throw e
     }
 }
 
-const createGR = async (delivery, tenant) => {
+const createGR = async (delivery, ten, ten2) => {
     try {
         let body = []
         let comp = ''
-        // const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
+
         for (let line of delivery.documentLines) {
             const process = await MasterDataProcesses.findOne({ orderId2: line.sourceDocId })
 
             if (!process) {
+                // console.log(1)
                 //throw ('SO NOT CREATED BY me')
                 continue
             }
@@ -381,19 +389,25 @@ const createGR = async (delivery, tenant) => {
 
             const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
 
+            comp = order.companyKey
+
             const order2 = tmp.data.filter(x => {
-                return x.sourceDocKey === order.doc
+         
+
+
+                return x.sourceDocKey === order.doc && x.sourceDocLineNumber === line.sourceDocLine
             })
 
             //TODO: LOG
 
             if (!order2.length) {
+                //  console.log()
                 // throw ('NAO TENHO NADA PARA RECEBER')
                 continue
             }
-
-            //maybe construir o soucelin e quatity
+            //maybe construir o soucelin e quatity // price
             order2.forEach(x => {
+               
                 body.push({
                     sourceDocKey: order.doc, "SourceDocLineNumber": x.sourceDocLineNumber,
                     "quantity": x.quantity
@@ -402,27 +416,42 @@ const createGR = async (delivery, tenant) => {
 
         }
 
-        if (body.length || comp === '')
+
+        if (body.length === 0) {
+   
+            // error
             return
 
-        const ans = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/goodsreceipt/processOrders/${comp}`, body)
+        } // throw error
+
+
+
+        if (comp === '') {
+      
+            return
+
+        } // throw error
+
+        const ans = await http('post', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/goodsreceipt/processOrders/${comp}`, body)
+
+
 
         //  await Order.updateOne({ _id: order._id }, { $set: { "processed": true } })
 
         await new Order({
-            tenant: tenant,
-            companyKey: order.companyKey,
+            tenant: ten2,
+            companyKey: comp,
             orderID: ans.data,
             processed: false,
             typeOrder: 'GR'
         }).save()
 
         console.log("GR INSERTED " + ans.data)
-        saveLog("GR inserted", order.companyKey);
+        saveLog("Success: GR inserted with ID: "+ ans.data, ten2);
 
         await new Order({
-            doc: delivery.documentLines[0].sourceDoc,
-            tenant: tenant,
+            doc: delivery.naturalKey,
+            tenant: ten,
             companyKey: delivery.company,
             orderID: delivery.id,
             processed: false,
@@ -430,7 +459,7 @@ const createGR = async (delivery, tenant) => {
         }).save()
 
         console.log("DO INSERTED " + delivery.id)
-        saveLog("DO inserted", delivery.company);
+        saveLog("Success: DO inserted with ID: " + delivery.id, ten);
 
         await new MasterDataProcesses({
             orderId1: delivery.id,
@@ -450,15 +479,12 @@ const createGR = async (delivery, tenant) => {
 
 
 // create ONE SO
-const createSalesOrder = async (order, tenant1, tenant2) => {
+const createSalesOrder = async (order, ten1, ten2) => {
 
     try {
-        console.log(order.naturalKey + " " + order.id)
+        console.log(order.naturalKey + " " + order.id + " of tenant " + ten1)
 
-        const tenant = tenant1
-        //const tenant = tenant1 === globla['tenant1'] ? tenant1 : global['tenant2'];
-
-        const customers = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/businesscore/parties`)
+        const customers = await http('get', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/businesscore/parties`) // 
 
         const customer = customers.data.filter(elem => {
 
@@ -466,12 +492,11 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
         })
 
         if (!customer.length) {
-            saveLog("Error: No customer found", order.company);
             throw ('there are no customer') /// TRHOW LOG NAO HÁ CUSTOMERS
         }
 
 
-        const ans = await http('get', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`)
+        const ans = await http('get', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/corepatterns/companies`)
 
         const comp = ans.data.filter(company => {
 
@@ -495,45 +520,37 @@ const createSalesOrder = async (order, tenant1, tenant2) => {
 
         await new Order({
             doc: order.naturalKey,
-            tenant: tenant2,
+            tenant: ten1,
             companyKey: order.company,
             orderID: order.id,
             typeOrder: 'PO'
         }).save()
 
         console.log('inserted PO with ' + order.id)
-        saveLog("Success: Inserted PO with id: " + order.id, order.company);
+        saveLog("Success: Inserted PO with id: " + order.id, ten1);
 
-        const ans2 = await http('post', `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/sales/orders`, k)
+        const ans2 = await http('post', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/sales/orders`, k)
 
         await new Order({
-            tenant: tenant,
+            tenant: ten2,
             companyKey: k.company,
             orderID: ans2.data,
             typeOrder: 'SO'
         }).save()
 
         console.log('inserted SO with ' + ans.data)
-        saveLog("Success: Inserted SO with id: " + ans2.data);
+        saveLog("Success: Inserted SO with id: " + ans2.data, ten2);
 
         await new MasterDataProcesses({
             orderId1: order.id,
             orderId2: ans2.data
         }).save()
         console.log('inserted processes: ' + order.id + " and " + ans2.data)
-        saveLog("Success: Inserted process in database PO: " + order.id + " and SO: " + ans2.data);
 
     } catch (e) {
         console.log(e)
 
 
-        // DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
-        // E DAR LOG DELES
-
-        // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"// DAR HANDLE AOS DOIS ERROS QUE PODEM ACONTECER
-        // E DAR LOG DELES
-
-        // console.log(e) // INSERT LOG "ECOMENDA ALREADY PROCESSED"
     }
 
 }
@@ -543,23 +560,24 @@ const frontCallPos = (req, res) => {
         processPos(req.tenant, req.names)
         res.status(200).json('ok')
     } catch (e) {
+        console.log(e)
         res.status(400).json(e.response)
 
     }
 }
 
 const processPos = async (ten, names) => {
-
-    const tenant2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
-
-    let orders;
     try {
+        const ten2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
+
+        let orders;
+
         if (names)
             orders = await getAllPOs(ten, names)
         else
             orders = await getAllPOs(ten)
 
-        orders.forEach(order => createSalesOrder(order, tenant2, ten))
+        orders.forEach(order => createSalesOrder(order, ten, ten2))
 
     } catch (e) {
         throw e
@@ -574,7 +592,7 @@ const getAllPOs = async (tenant, filter) => {
         const tmpOrders = await http('get', url);
 
         if (filter) {
-            return await tmpOrders.data.filter(async order => {
+            return await tmpOrders.data.filter(order => {
                 return filter.includes(order.naturalKey)
             })
         }
@@ -591,7 +609,7 @@ const getAllPOs = async (tenant, filter) => {
             return getAllPOs(tenant, filter)
 
         } else {
-            console.log('mummy')
+            saveLog("Error: Getting orders", tenant);
         }
     }
 

@@ -40,88 +40,91 @@ const getCompaniesInfo = (req, res) => {
 
 const saveTenantOrganization = (req, res) => {
 
-    console.log("global");
+    try {
+        //  TODO: check if its only digits
+        /* if(false) {   // if not valid
+            res.status(500).send({ error: 'not valid tenant or organization' })
+        } */
 
-    //  TODO: check if its only digits
-    /* if(false) {   // if not valid
-        res.status(500).send({ error: 'not valid tenant or organization' })
-    } */
+        const tenant = req.headers.tenant;
+        const tenant2 = req.headers.tenant2;
+        const organization = req.headers.organization;
+        const organization2 = req.headers.organization2;
 
-    const tenant = req.headers.tenant;
-    const tenant2 = req.headers.tenant2;
-    const organization = req.headers.organization;
-    const organization2 = req.headers.organization2;
+        global['tenant1'] = tenant
+        global['tenant2'] = tenant2
+        global['org1'] = organization
+        global['org2'] = organization2
 
-    global['tenant1'] = tenant
-    global['tenant2'] = tenant2
-    global['org1'] = organization
-    global['org2'] = organization2
+        const url = `https://my.jasminsoftware.com/api/${tenant}/${organization}/corepatterns/companies`;
+        const url2 = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/corepatterns/companies`;
 
-    const url = `https://my.jasminsoftware.com/api/${tenant}/${organization}/corepatterns/companies`;
-    const url2 = `https://my.jasminsoftware.com/api/${tenant2}/${organization2}/corepatterns/companies`;
-
-    http('get', url)
-        .then(answer => {
-            const companies = answer.data
-            http('get', url2)
-                .then(answer2 => {
-                    const companies2 = answer2.data
-                    saveTenantOrganizationDB(tenant, organization, tenant2, organization2, companies[1].companyKey, companies2[1].companyKey);
-                    res.send({ company1: companies[1].companyKey, company2: companies2[1].companyKey })
-                })
-                .catch(respo => {
-                    const { response } = respo
-                    if (response.status === 401) {
-
-                        requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
-                            .then(() => saveTenantOrganization(req, res))
-                            .catch(error => {
-
-                                console.log(error)
-                            })
-                    }
-                    console.log(respo)
-                })
-        })
-        .catch(respo => {
-            const { response } = respo
-            if (response.status === 401) {
-
-                requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
-                    .then(() => saveTenantOrganization(req, res))
-                    .catch(error => {
-
-
-                        console.log(error)
+        http('get', url)
+            .then(answer => {
+                const companies = answer.data
+                http('get', url2)
+                    .then(answer2 => {
+                        const companies2 = answer2.data
+                        saveTenantOrganizationDB(tenant, organization, tenant2, organization2, companies[1].companyKey, companies2[1].companyKey);
+                        res.send({ company1: companies[1].companyKey, company2: companies2[1].companyKey })
                     })
-            }
+                    .catch(respo => {
+                        const { response } = respo
+                        if (response.status === 401) {
 
-            console.log(respo)
+                            requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                                .then(() => saveTenantOrganization(req, res))
+                                .catch(error => {
 
-        })
+                                    console.log(error)
+                                })
+                        }
+                        console.log(respo)
+                    })
+            })
+            .catch(respo => {
+                const { response } = respo
+                if (response.status === 401) {
 
-    //console.log(Company.find());
+                    requestAccessToken()        // Necessario estar sempre a fazer o pedido do token?
+                        .then(() => saveTenantOrganization(req, res))
+                        .catch(error => {
 
-    /* global["tenant1"] = req.headers.tenant;
-    global["tenant2"] = req.headers.tenant2;
-    global["organization1"] = req.headers.organization;
-    global["organization2"] = req.headers.organization2; */
 
-    //setTimers();
-    console.log("Received and saved in global <tenant1> and <tenant2>: " + req.headers.tenant + ", " + req.headers.tenant2);
-    console.log("Received and saved in global <organization1> and <organization2>: " + req.headers.organization + ", " + req.headers.organization2);
+                            //                            console.log(error)
+                        })
+                }
 
-    //res.send({ message: "Saved tenants and organizations successfully"});
+                // console.log(respo)
 
+            })
+
+        //console.log(Company.find());
+
+        /* global["tenant1"] = req.headers.tenant;
+        global["tenant2"] = req.headers.tenant2;
+        global["organization1"] = req.headers.organization;
+        global["organization2"] = req.headers.organization2; */
+
+        setTimers();
+        console.log("Received and saved in global <tenant1> and <tenant2>: " + req.headers.tenant + ", " + req.headers.tenant2);
+        console.log("Received and saved in global <organization1> and <organization2>: " + req.headers.organization + ", " + req.headers.organization2);
+
+        //res.send({ message: "Saved tenants and organizations successfully"});
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 
 
-// function setTimers(){
+function setTimers() {
 
-//     setInterval(controllRequest.frontCallPos, 15000)
+    //setInterval(() => { controllRequest.processPos(global['tenant1']) }, 15000)
+    setInterval(() => { controllRequest.processDOs(global['tenant2']) }, 5000)
 
-// }
+
+}
 
 
 
