@@ -2,6 +2,7 @@
 
 const Log = require('../models/logs')
 
+
 const saveLog = async (stringlog, companyID) => {
     await new Log({
         message: stringlog,
@@ -9,7 +10,7 @@ const saveLog = async (stringlog, companyID) => {
     }).save();
 }
 
-const listLogs = (req, res) => {
+const listLogs = async (req, res) => {
     Log.find({}).sort('-createdAt')
         .then(logs => {
             let kapa = logs.map(x => [x.compId, x.message, new Date(x.createdAt).toGMTString()])

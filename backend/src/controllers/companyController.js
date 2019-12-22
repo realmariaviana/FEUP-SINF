@@ -236,21 +236,30 @@ const getItens = (req, res) => {
 const createMapEntry = async (req, res) => {
     console.log("Creating product map entry");
     const entry = new MapProduct({ product1: req.headers.product1, product2: req.headers.product2 });
-
+    
     entry.save(async (err, data) => {
         if (err)
             console.log(err);
-        let cena = await getMapEntry(req.headers.product1, "sale");
         res.status(200);
     });
 }
 
 const getMapEntry = async (productId, type) => {
     if (type == "sale") {
-        return await MapProduct.findOne({ product1: productId });
+        let c=await MapProduct.findOne({ product1: productId });
+        if(c){
+            return c.product2;
+        }else{
+            return productId;
+        }
     }
     else {
-        return await MapProduct.findOne({ product2: productId });
+        let c=await MapProduct.findOne({ product2: productId });
+        if(c){
+            return c.product1;
+        }else{
+            return productId;
+        }
     }
 
 }

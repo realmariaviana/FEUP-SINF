@@ -9,6 +9,7 @@ const SO = require('../processes/SalesOrder')
 const Invoice = require('../processes/Invoice')
 const Receive = require('../processes/Receive')
 const { saveLog } = require('./logsController');
+const { getMapEntry } = require('./companyController');
 
 
 
@@ -507,7 +508,10 @@ const createSalesOrder = async (order, ten1, ten2) => {
 
         let goods = [];
 
-        order.documentLines.forEach(x => goods.push({ salesItem: x.purchasesItem, quantity: x.quantity, unit: x.unit, unitPrice: x.unitPrice }));
+        order.documentLines.forEach(async x => {
+            let prd=await getMapEntry(x.purchasesItem,"purchase");
+            goods.push({ salesItem: prd, quantity: x.quantity, unit: x.unit, unitPrice: x.unitPrice })
+        });
         const k = SO.create({
             paymentMethod: order.paymentMethod,
             discount: order.discount,
