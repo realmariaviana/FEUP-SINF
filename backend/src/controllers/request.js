@@ -363,7 +363,6 @@ const processDOs = async (tenant, names) => {
             deliveries = await getAllDOs(tenant)
 
         await deliveries.forEach(delivery => createGR(delivery, tenant, tenant2))
-        //await createGR(deliveries, tenant)
 
 
     } catch (e) {
@@ -378,32 +377,41 @@ const createGR = async (delivery, ten, ten2) => {
         let comp = ''
 
         for (let line of delivery.documentLines) {
-            console.log(line.sourceDocId)
-
             const process = await MasterDataProcesses.findOne({ orderId2: line.sourceDocId })
 
             if (!process) {
-               // console.log(1)
+                // console.log(1)
                 //throw ('SO NOT CREATED BY me')
                 continue
             }
-            console.log('not q1')
+
             const order = await Order.findOne({ orderID: process.orderId1 })
 
             const tmp = await http('get', `https://my.jasminsoftware.com/api/${order.tenant}/${order.tenant + "-0001"}/goodsReceipt/processOrders/1/1000?company=${order.companyKey}`)
 
+            comp = order.companyKey
+
             const order2 = tmp.data.filter(x => {
-                return x.sourceDocKey === order.doc
+         
+
+
+                return x.sourceDocKey === order.doc && x.sourceDocLineNumber === line.sourceDocLine
             })
 
             //TODO: LOG
 
             if (!order2.length) {
+                //  console.log()
                 // throw ('NAO TENHO NADA PARA RECEBER')
                 continue
             }
+<<<<<<< HEAD
             //maybe construir o soucelin e quatity // price
+=======
+
+>>>>>>> 2ce0edc553990aeb60f124e2e5f4939c852c66ab
             order2.forEach(x => {
+               
                 body.push({
                     sourceDocKey: order.doc, "SourceDocLineNumber": x.sourceDocLineNumber,
                     "quantity": x.quantity
@@ -412,10 +420,22 @@ const createGR = async (delivery, ten, ten2) => {
 
         }
 
-        if (body.length || comp === '') // throw error
+
+        if (body.length === 0) {
+   
+            // error
             return
 
-        console.log('before sent')
+        } // throw error
+
+
+
+        if (comp === '') {
+      
+            return
+
+        } // throw error
+
         const ans = await http('post', `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/goodsreceipt/processOrders/${comp}`, body)
 
 
@@ -424,17 +444,22 @@ const createGR = async (delivery, ten, ten2) => {
 
         await new Order({
             tenant: ten2,
-            companyKey: order.companyKey,
+            companyKey: comp,
             orderID: ans.data,
             processed: false,
             typeOrder: 'GR'
         }).save()
 
         console.log("GR INSERTED " + ans.data)
+<<<<<<< HEAD
         saveLog("Success: GR inserted with ID: "+ ans.data, ten2);
+=======
+        saveLog("GR inserted", comp);
+
+>>>>>>> 2ce0edc553990aeb60f124e2e5f4939c852c66ab
 
         await new Order({
-            doc: delivery.documentLines[0].sourceDoc,
+            doc: delivery.naturalKey,
             tenant: ten,
             companyKey: delivery.company,
             orderID: delivery.id,
