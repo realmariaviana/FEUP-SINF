@@ -22,6 +22,9 @@ export default function TableProcesses(props) {
   const [selected, setSelected] = React.useState([]);
 
   const isSelected = id => selected.indexOf(id) !== -1;
+  
+  console.log("table_data:");
+  console.log(tableData);
 
   const handleClick = (event, id) => {
     console.log("row : " + id + " clicked");

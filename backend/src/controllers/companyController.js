@@ -161,11 +161,11 @@ const getPurchaseOrders = (req, res) => {
     console.log("Company_Controller: Getting purchase orders");
     console.log(req.headers.organization);
 
-    const url = `https://my.jasminsoftware.com/api/${req.headers.tenant}/${req.headers.organization}/purchases/orders?`
+    const url = `https://my.jasminsoftware.com/api/${req.headers.tenant}/${req.headers.organization}/purchases/orders?page=1&pageSize=100`
 
     http('get', url)
         .then(answer => {
-            const POs = answer.data
+            const POs = answer.data.data
             console.log("Sending info from organization: " + req.headers.organization);
             res.send(POs)
         })
