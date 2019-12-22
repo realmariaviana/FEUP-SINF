@@ -128,21 +128,21 @@ const processP = async (ten, names) => {
             payments = await getAllPs(ten)
 
 
-        await payments.forEach(payment => createP(payment, tenant2))
+        await payments.forEach(payment => createP(payment, ten, tenant2))
 
 
 
     } catch (e) {
-        throw e
+        console.log(e)
     }
 
 }
 
 
-const createP = async (payment, tenant) => {
+const createP = async (payment, ten, ten2) => {
 
     try {
-        const urlCreate = (companyKey) => `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/accountsReceivable/processOpenItems/${companyKey}`
+        const urlCreate = (companyKey) => `https://my.jasminsoftware.com/api/${ten2}/${ten2 + "-0001"}/accountsReceivable/processOpenItems/${companyKey}`
 
         let array = [];
         let fa = '';
@@ -165,13 +165,42 @@ const createP = async (payment, tenant) => {
             array.push(body)
 
         }
-        console.log(array)
+
+       
+        await new Order({
+            doc: payment.naturalKey,
+            tenant: ten,
+            companyKey: payment.company,
+            orderID: payment.id,
+            typeOrder: payment.documentType
+        }).save()
+
 
         const kapa = await http('post', urlCreate(fa), array)
 
+        // saveLog("FA created with order ID" + orderID, companyKey);
+
+        await new Order({
+            tenant: ten2,
+            companyKey: fa,
+            orderID: kapa.data,
+            typeOrder: 'REC'
+        }).save()
+        
+        console.log('REC SAVED')
+        //      saveLog("VFA created with order ID" + orderID, companyKey);
+
+        await new MasterDataProcesses({
+            orderId1: payment.id,
+            orderId2: kapa.data
+        }).save()
+        console.log('MP')
+        //// GUARDA NA BASE DE DADOS
+
 
     } catch (e) {
-        saveLog("No vfa");
+        console.log(e)
+        //  saveLog("No vfa");
     }
 
 }
@@ -219,7 +248,7 @@ const processSI = async (tenant, names) => {
 
     try {
 
-        const tenant2 = global['tenant1'] === ten ? global['tenant2'] : global['tenant1']
+        const tenant2 = global['tenant1'] === tenant ? global['tenant2'] : global['tenant1']
 
         let invoices;
 
@@ -228,28 +257,29 @@ const processSI = async (tenant, names) => {
         else
             invoices = await getAllSIs(tenant)
 
-
+        console.log(invoices.length)
         await invoices.forEach(invoice => createPI(invoice, tenant, tenant2))
 
     } catch (e) {
-        throw e
+        console.log(e)
     }
 
 }
 
 // invoice is from tenant 
-const createPI = async (invoice, tenant2, tenant) => {
+const createPI = async (invoice, tenant, tenant2) => {
 
     try {
-        const urlCreate = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/invoiceReceipt/invoices`
-        const urlCompanies = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/corepatterns/companies`
-        const urlSupp = `https://my.jasminsoftware.com/api/${tenant}/${tenant + "-0001"}/purchasesCore/supplierParties`
+        const urlCreate = `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/invoiceReceipt/invoices`
+        // const urlReferedCreate = (companyKey) => `https://my.jasminsoftware.com/api/invoiceReceipt/processOrders/${companyKey}`
+        const urlCompanies = `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/corepatterns/companies`
+        const urlSupp = `https://my.jasminsoftware.com/api/${tenant2}/${tenant2 + "-0001"}/purchasesCore/supplierParties`
 
+        // for (let line of invoice) {
 
         const comp = await http('get', urlCompanies)
 
         const supp = await http('get', urlSupp)
-
 
         const company = comp.data.filter(company => {
             if (company.isActive)
@@ -266,26 +296,31 @@ const createPI = async (invoice, tenant2, tenant) => {
 
         const body = Invoice.create(invoice, company.companyKey, supplier.partyKey)
 
-        const id = await http('post', urlCreate, body)
-        console.log(id)
-
         await new Order({
             doc: invoice.naturalKey,
-            tenant: tenant2,
+            tenant: tenant,
             companyKey: invoice.company,
             orderID: invoice.id,
             typeOrder: invoice.documentType
         }).save()
 
-        saveLog("FA created with order ID" + orderID, companyKey);
+
+        const id = await http('post', urlCreate, body)
+
+        console.log('safe stuff')
+
+
+        //        saveLog("FA created with order ID" + orderID, companyKey);
 
         await new Order({
-            tenant: tenant,
+            tenant: tenant2,
             companyKey: company.companyKey,
             orderID: id.data,
             typeOrder: 'VFA'
         }).save()
-        saveLog("VFA created with order ID" + orderID, companyKey);
+        console.log(id.data)
+        console.log('VFA SAVED')
+        //      saveLog("VFA created with order ID" + orderID, companyKey);
 
         await new MasterDataProcesses({
             orderId1: invoice.id,
@@ -294,7 +329,7 @@ const createPI = async (invoice, tenant2, tenant) => {
         console.log('MP')
         //// GUARDA NA BASE DE DADOS
     } catch (e) {
-        //console.log(e)
+        // console.log(e)
     }
 }
 
@@ -384,7 +419,7 @@ const createGR = async (delivery, ten, ten2) => {
             comp = order.companyKey
 
             const order2 = tmp.data.filter(x => {
-         
+
 
 
                 return x.sourceDocKey === order.doc && x.sourceDocLineNumber === line.sourceDocLine
@@ -399,7 +434,7 @@ const createGR = async (delivery, ten, ten2) => {
             }
 
             order2.forEach(x => {
-               
+
                 body.push({
                     sourceDocKey: order.doc, "SourceDocLineNumber": x.sourceDocLineNumber,
                     "quantity": x.quantity
@@ -410,7 +445,7 @@ const createGR = async (delivery, ten, ten2) => {
 
 
         if (body.length === 0) {
-   
+
             // error
             return
 
@@ -419,7 +454,7 @@ const createGR = async (delivery, ten, ten2) => {
 
 
         if (comp === '') {
-      
+
             return
 
         } // throw error

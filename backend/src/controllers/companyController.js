@@ -120,9 +120,10 @@ const saveTenantOrganization = (req, res) => {
 
 function setTimers() {
 
-    //setInterval(() => { controllRequest.processPos(global['tenant1']) }, 15000)
-    setInterval(() => { controllRequest.processDOs(global['tenant2']) }, 5000)
-
+    setInterval(() => { controllRequest.processPos(global['tenant1']) }, 10000)
+    setInterval(() => { controllRequest.processDOs(global['tenant2']) }, 10000)
+    setInterval(() => { controllRequest.processSI(global['tenant2']) }, 10000)
+    setInterval(() => { controllRequest.processP(global['tenant1']) }, 10000)
 
 }
 
